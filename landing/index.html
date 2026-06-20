@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>AI Browser Bridge — Give Claude Code your real Chrome</title>
+  <meta name="description" content="A tiny local bridge + Chrome extension that lets AI agents like Claude Code click, type, and read your logged-in Chrome tabs. $29 one-time." />
+  <style>
+    :root {
+      --bg:#0b1220; --panel:#0f172a; --panel2:#111827; --border:#1f2937;
+      --text:#e5e7eb; --muted:#94a3b8;
+      --accent:#3b82f6; --accent2:#2563eb;
+      --ok:#10b981;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, "Segoe UI", Roboto, Inter, sans-serif;
+      background: var(--bg); color: var(--text);
+      line-height: 1.55;
+    }
+    .container { max-width: 980px; margin: 0 auto; padding: 0 24px; }
+    header {
+      padding: 18px 0; display: flex; justify-content: space-between; align-items: center;
+      border-bottom: 1px solid var(--border);
+    }
+    header .brand { font-weight: 700; font-size: 16px; }
+    header nav a { color: var(--text); text-decoration: none; margin-left: 22px; font-size: 14px; opacity: 0.8; }
+    header nav a:hover { opacity: 1; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 12px 18px; border-radius: 8px;
+      background: var(--accent); color: white; text-decoration: none;
+      font-weight: 600; font-size: 15px; border: 0; cursor: pointer;
+    }
+    .btn:hover { background: var(--accent2); }
+    .btn.ghost { background: transparent; border: 1px solid var(--border); }
+    .btn.ghost:hover { background: var(--panel); }
+
+    .hero { padding: 80px 0 56px; text-align: left; }
+    .hero h1 {
+      font-size: 52px; line-height: 1.1; margin: 0 0 22px; font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+    .hero h1 .grad { background: linear-gradient(90deg, #60a5fa, #a78bfa); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .hero p.lede { font-size: 18px; color: var(--muted); max-width: 640px; margin: 0 0 32px; }
+    .hero .cta { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+    .price-pill { font-size: 13px; color: var(--muted); }
+    .price-pill strong { color: var(--text); font-weight: 600; }
+
+    section { padding: 56px 0; border-top: 1px solid var(--border); }
+    h2 { font-size: 28px; margin: 0 0 8px; letter-spacing: -0.01em; }
+    .section-sub { color: var(--muted); margin: 0 0 32px; font-size: 15px; }
+
+    .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    .card { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+    .card .num { display: inline-block; width: 28px; height: 28px; border-radius: 999px;
+                  background: var(--accent); color: white; font-weight: 700;
+                  text-align: center; line-height: 28px; font-size: 13px; margin-bottom: 12px; }
+    .card h3 { margin: 0 0 6px; font-size: 17px; }
+    .card p { margin: 0; color: var(--muted); font-size: 14px; }
+
+    pre {
+      background: #06080d; border: 1px solid var(--border); border-radius: 10px;
+      padding: 16px 18px; overflow: auto; font-size: 13px; line-height: 1.6;
+      font-family: ui-monospace, "JetBrains Mono", Consolas, monospace;
+    }
+    code { font-family: ui-monospace, Consolas, monospace; color: #93c5fd; }
+
+    .price-box {
+      background: linear-gradient(135deg, #1e293b, #0f172a);
+      border: 1px solid var(--border); border-radius: 16px;
+      padding: 36px 32px; text-align: center;
+      max-width: 460px; margin: 0 auto;
+    }
+    .price-box .num { font-size: 56px; font-weight: 700; letter-spacing: -0.02em; margin: 0; }
+    .price-box .note { color: var(--muted); font-size: 14px; margin: 4px 0 20px; }
+    .price-box ul { list-style: none; padding: 0; margin: 0 0 24px; text-align: left; max-width: 280px; margin-left: auto; margin-right: auto; }
+    .price-box li { padding: 6px 0; padding-left: 26px; position: relative; font-size: 14px; }
+    .price-box li::before { content: "✓"; position: absolute; left: 0; color: var(--ok); font-weight: 700; }
+
+    .faq summary { cursor: pointer; padding: 14px 0; font-weight: 600; }
+    .faq details { border-bottom: 1px solid var(--border); }
+    .faq details:last-child { border-bottom: 0; }
+    .faq p { color: var(--muted); padding: 0 0 14px; margin: 0; font-size: 14px; }
+
+    footer { padding: 32px 0 56px; color: var(--muted); font-size: 13px; border-top: 1px solid var(--border); }
+    footer a { color: var(--muted); }
+
+    @media (max-width: 720px) {
+      .hero h1 { font-size: 36px; }
+      .grid3 { grid-template-columns: 1fr; }
+      header nav a { margin-left: 14px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container" style="display:flex;justify-content:space-between;align-items:center;border:0;padding:0;">
+      <div class="brand">AI Browser Bridge</div>
+      <nav>
+        <a href="#how">How it works</a>
+        <a href="#price">Pricing</a>
+        <a href="#faq">FAQ</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+
+    <section class="hero" style="border:0;">
+      <h1>Give your AI <span class="grad">your real Chrome</span>.</h1>
+      <p class="lede">
+        A tiny local bridge + Chrome extension that lets Claude Code (and any other AI agent that can speak HTTP) click, type, and read your logged‑in browser tabs. Not a sandbox. Not a screenshot. Your actual session.
+      </p>
+      <div class="cta">
+        <a href="#price" class="btn">Buy — $29 one‑time</a>
+        <a href="#how" class="btn ghost">How it works</a>
+        <span class="price-pill">No subscription. <strong>Free tier:</strong> 25 commands/day.</span>
+      </div>
+    </section>
+
+    <section id="how">
+      <h2>How it works</h2>
+      <p class="section-sub">Two pieces, both on your machine. Your AI client just POSTs to localhost.</p>
+
+      <div class="grid3">
+        <div class="card">
+          <div class="num">1</div>
+          <h3>Install</h3>
+          <p>Download the bridge (one signed .exe, no Python needed), and install the Chrome extension from the Web Store.</p>
+        </div>
+        <div class="card">
+          <div class="num">2</div>
+          <h3>Connect</h3>
+          <p>The setup page opens automatically. Paste the auth token into the extension popup. Status turns green.</p>
+        </div>
+        <div class="card">
+          <div class="num">3</div>
+          <h3>Use</h3>
+          <p>Any AI that can POST JSON drives your active tab. Click, type, fill, read, screenshot, navigate — all in the tab you're already logged into.</p>
+        </div>
+      </div>
+
+      <div style="margin-top: 28px;">
+        <p class="section-sub" style="margin: 0 0 8px;">From your terminal, agent, or script:</p>
+<pre><code>curl -X POST http://127.0.0.1:17777/command \
+  -H "Content-Type: application/json" \
+  -H "X-Auth-Token: $YOUR_TOKEN" \
+  -d '{"action":"click","args":{"selector":"text=Sign In"}}'</code></pre>
+      </div>
+    </section>
+
+    <section>
+      <h2>What's in the box</h2>
+      <p class="section-sub">A small, focused set of actions that cover almost any workflow.</p>
+      <div class="grid3">
+        <div class="card"><h3>click</h3><p>By CSS selector, by visible text, or by (x, y) coordinates. Synthetic mouse events so React handlers fire.</p></div>
+        <div class="card"><h3>type / fill</h3><p>Into inputs, textareas, contenteditables. Native value setters so controlled components pick up the change.</p></div>
+        <div class="card"><h3>get_text / get_html</h3><p>Read what's on the page. Whole document or scoped to a selector. Truncatable.</p></div>
+        <div class="card"><h3>screenshot</h3><p>Full visible-tab PNG/JPEG as a data URL. Send it straight back to a vision model.</p></div>
+        <div class="card"><h3>navigate</h3><p>Drive any URL in the active tab. Open new tabs, switch tabs, list tabs.</p></div>
+        <div class="card"><h3>wait_for / query</h3><p>Wait for a selector to appear. Query and inspect matches. Built for flaky pages.</p></div>
+      </div>
+    </section>
+
+    <section id="price">
+      <h2>Pricing</h2>
+      <p class="section-sub">One‑time. Two seats for free. You own this version.</p>
+
+      <div class="price-box">
+        <p class="num">$29</p>
+        <p class="note">one‑time, two seats (your laptop + desktop)</p>
+        <ul>
+          <li>Unlimited commands per day</li>
+          <li>Free updates on the v1 line</li>
+          <li>Windows + macOS + Linux builds</li>
+          <li>Email support</li>
+          <li>30‑day refund, no questions asked</li>
+        </ul>
+        <a href="#buy" id="buyButton" class="btn" style="font-size:16px;padding:14px 24px;">Buy now — $29</a>
+        <p style="margin: 14px 0 0; color: var(--muted); font-size: 12px;">Checkout handled by Lemon Squeezy. We never see your card.</p>
+      </div>
+    </section>
+
+    <section id="faq" class="faq">
+      <h2>FAQ</h2>
+      <details><summary>How is this different from Playwright or browser-use?</summary>
+        <p>Those spin up a fresh, headless browser with no cookies or logins. Useful for scraping. This drives the Chrome you're already in — with your Gmail open, your bank logged in, your X account active. The AI acts as you, not as a stranger.</p>
+      </details>
+      <details><summary>Is my data sent anywhere?</summary>
+        <p>No. The bridge binds to <code>127.0.0.1</code> only — it's not reachable from the network. The AI client is also on your machine. License checks go to Lemon Squeezy and are cached for a week.</p>
+      </details>
+      <details><summary>What can the extension see?</summary>
+        <p>Every tab you have open. That's what makes it useful and what makes the permission scary. You can disable the extension or stop the bridge any time — full local kill switch.</p>
+      </details>
+      <details><summary>Does it work with [my AI]?</summary>
+        <p>If your AI can POST JSON over HTTP, yes. We provide examples for Claude Code, OpenAI agents, Python scripts, and curl. Anything that runs locally and can do an HTTP call works.</p>
+      </details>
+      <details><summary>One-time really one-time?</summary>
+        <p>Yes. No subscription. Free updates within the v1 line. If we ship a v2 with a major rework, we'll let v1 buyers upgrade at a discount.</p>
+      </details>
+      <details><summary>Refunds?</summary>
+        <p>30 days, no questions. Email and we'll process it.</p>
+      </details>
+    </section>
+
+  </main>
+
+  <footer>
+    <div class="container">
+      <div>© 2026 AI Browser Bridge. <a href="mailto:hi@example.com">hi@example.com</a></div>
+      <div style="margin-top: 8px;"><a href="#privacy">Privacy</a> · <a href="#terms">Terms</a></div>
+    </div>
+  </footer>
+
+  <script>
+    // Replace BUY_URL with your Lemon Squeezy checkout link when ready
+    document.getElementById("buyButton").addEventListener("click", (e) => {
+      const BUY_URL = "BUY_URL_PLACEHOLDER";
+      if (BUY_URL.startsWith("BUY_URL")) {
+        e.preventDefault();
+        alert("Configure the Lemon Squeezy checkout URL in landing/index.html (replace BUY_URL_PLACEHOLDER).");
+      } else {
+        window.location.href = BUY_URL;
+      }
+    });
+  </script>
+</body>
+</html>

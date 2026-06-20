@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>AI Browser Bridge</title>
+  <style>
+    body { font-family: -apple-system, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 14px; width: 340px; background: #0f172a; color: #e2e8f0; }
+    h1 { font-size: 14px; margin: 0 0 10px; font-weight: 600; }
+    .status { padding: 8px 10px; border-radius: 8px; font-size: 13px; font-weight: 600; }
+    .ok  { background: #14532d; color: #bbf7d0; }
+    .bad { background: #7f1d1d; color: #fecaca; }
+    .mid { background: #713f12; color: #fde68a; }
+    label { display: block; font-size: 11px; margin-top: 10px; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; }
+    input { width: 100%; box-sizing: border-box; padding: 7px 8px; border-radius: 6px; border: 1px solid #334155; background: #0b1220; color: #e2e8f0; font-family: ui-monospace, Consolas, monospace; font-size: 12px; }
+    .row { display: flex; gap: 6px; margin-top: 10px; }
+    button { flex: 1; padding: 8px 10px; border: 0; border-radius: 6px; background: #1e293b; color: #e2e8f0; cursor: pointer; font-size: 13px; }
+    button:hover { background: #334155; }
+    button.primary { background: #2563eb; }
+    button.primary:hover { background: #1d4ed8; }
+    .log { margin-top: 12px; max-height: 180px; overflow-y: auto; background: #020617; border: 1px solid #1e293b; border-radius: 6px; padding: 6px; font-family: ui-monospace, Consolas, monospace; font-size: 11px; }
+    .log .entry { padding: 3px 4px; border-bottom: 1px solid #0f172a; }
+    .log .entry:last-child { border-bottom: 0; }
+    .entry.err { color: #fca5a5; }
+    .entry.ok  { color: #86efac; }
+    .meta { color: #64748b; font-size: 11px; margin-top: 8px; }
+    code { background: #1e293b; padding: 1px 4px; border-radius: 3px; }
+  </style>
+</head>
+<body>
+  <h1>AI Browser Bridge</h1>
+  <div id="status" class="status mid">checking…</div>
+
+  <label for="tokenInput">Auth token</label>
+  <input id="tokenInput" type="text" placeholder="paste from bridge startup output" autocomplete="off" spellcheck="false" />
+  <div class="row">
+    <button id="saveTokenBtn" class="primary">Save token</button>
+    <button id="reconnectBtn">Reconnect</button>
+  </div>
+
+  <div class="meta">Bridge: <code>127.0.0.1:17777</code></div>
+  <div class="log" id="log"></div>
+  <script src="popup.js"></script>
+</body>
+</html>
