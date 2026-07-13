@@ -3,6 +3,44 @@
 Lets any local AI (Claude Code, curl, scripts) drive your real Chrome tabs —
 click, type, fill forms, read page content, screenshot, navigate.
 
+## Sandbox (zero install)
+
+**https://fitzyracing1.github.io/nexus-ai/sandbox/** — a browser *inside* the
+webpage, with the bridge "extension" built in. Nothing to install: the window
+has an address bar, tabs, back/forward, and a set of real demo sites, and an AI
+console drives them for real — clicking buttons, filling forms, reading text,
+navigating, screenshotting. There's also an autonomous-task runner that chains
+commands ("buy the headphones", "fill & submit the sign-in form").
+
+It works because the sandbox pages are served from the same origin, so
+in-page JavaScript can script them directly. The agent (`sandbox/agent.js`) is
+the **same action logic that ships in `extension/content.js`** — the same
+`text=` / `text~=` / CSS selector engine, the same synthetic mouse/keyboard
+events, the same controlled-input setter. The real extension does the identical
+thing to *any* tab; it just reaches it through the local bridge instead of an
+iframe. Use the sandbox to see exactly what the bridge can do before installing.
+
+## Live demo (real bridge)
+
+**https://fitzyracing1.github.io/nexus-ai/** — a real, working demo (not a
+mock). Open it in an extensions-capable Chromium browser (Chrome, Edge, Brave)
+and it drives *that very page* through your local bridge:
+
+1. Start `bridge.py` and install the extension (see [setup](#one-time-setup)).
+2. Open the demo page and paste your bridge auth token (from
+   `http://127.0.0.1:17777/setup`) into the token box.
+3. The three status boxes should turn green (browser ✓, extension ✓, bridge ✓).
+4. Click **Read URL**, **Type into the box**, **Click the counter**, or
+   **Screenshot** — each POSTs a genuine command to `127.0.0.1:17777`, which the
+   extension executes on the active tab (the demo page itself).
+
+The page talks to the bridge directly over localhost: Chromium exempts
+`http://127.0.0.1` from mixed-content blocking, and the bridge already sends
+permissive CORS headers, so an HTTPS GitHub Pages site can reach it. The
+extension only exposes a presence handshake to pages (so the demo can show
+"extension installed") — all real actions still go through the token-protected
+bridge, so a random website can't drive your browser.
+
 ## Pieces
 
 ```

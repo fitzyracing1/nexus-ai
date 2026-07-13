@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nexus Sandbox • Browser with the Bridge built in</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+  body { font-family:'Inter',system-ui,sans-serif; }
+  .font-display { font-family:'Space Grotesk','Inter',sans-serif; }
+  .font-mono { font-family:'JetBrains Mono',ui-monospace,monospace; }
+  .chip { transition:.12s; }
+  .chip:hover { background:#3f3f46; }
+  .log-line { border-left:2px solid #27272a; }
+  .log-line.ok { border-left-color:#34d399; }
+  .log-line.err { border-left-color:#f87171; }
+  .log-line.say { border-left-color:#8ab4ff; }
+  #viewport { background:#0b0f19; }
+  .toolbtn { width:34px;height:34px;display:flex;align-items:center;justify-content:center;border-radius:10px; }
+  .toolbtn:hover:not(:disabled){ background:#27272a; }
+  .toolbtn:disabled{ opacity:.35; }
+</style>
+</head>
+<body class="bg-zinc-950 text-zinc-200">
+  <!-- Top bar -->
+  <header class="border-b border-zinc-800 bg-zinc-950/95 backdrop-blur sticky top-0 z-50">
+    <div class="max-w-screen-2xl mx-auto px-6 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-x-2">
+        <div class="w-9 h-9 bg-white rounded-2xl flex items-center justify-center">
+          <i class="fa-solid fa-link text-zinc-950 text-xl"></i>
+        </div>
+        <span class="font-display text-2xl font-semibold tracking-tighter">Nexus AI</span>
+        <span class="ml-2 px-2.5 py-1 rounded-full bg-emerald-400/10 text-emerald-400 text-xs tracking-wide">SANDBOX</span>
+      </div>
+      <a href="../index.html" class="px-5 py-2 bg-zinc-900 hover:bg-zinc-800 rounded-2xl text-sm flex items-center gap-x-2 transition-colors">
+        <i class="fa-solid fa-plug"></i><span>Real bridge &amp; install</span>
+      </a>
+    </div>
+  </header>
+
+  <div class="max-w-screen-2xl mx-auto px-4 md:px-6 pt-8 pb-16">
+    <div class="max-w-3xl mb-8">
+      <h1 class="font-display text-4xl md:text-5xl tracking-[-2px] font-semibold leading-tight mb-3">
+        A browser, in your browser —<br>with the bridge extension inside it.
+      </h1>
+      <p class="text-lg text-zinc-400">
+        No install, no setup. The window below is a real, scriptable browser. The Nexus bridge
+        “extension” is built into it, and the AI console drives real pages for real — the same
+        click / type / read engine that ships in the actual Chrome extension.
+      </p>
+    </div>
+
+    <div class="grid lg:grid-cols-5 gap-6">
+
+      <!-- ============ Sandbox browser ============ -->
+      <div class="lg:col-span-3">
+        <div class="bg-zinc-900 border border-zinc-700 rounded-3xl overflow-hidden">
+          <!-- toolbar -->
+          <div class="flex items-center gap-2 px-3 py-2.5 bg-zinc-800/60 border-b border-zinc-700">
+            <button id="btn-back" class="toolbtn" title="Back"><i class="fa-solid fa-arrow-left"></i></button>
+            <button id="btn-fwd" class="toolbtn" title="Forward"><i class="fa-solid fa-arrow-right"></i></button>
+            <button id="btn-reload" class="toolbtn" title="Reload"><i class="fa-solid fa-rotate-right"></i></button>
+            <div class="flex-1 flex items-center gap-2 bg-zinc-950 border border-zinc-700 rounded-xl px-3 py-1.5">
+              <i class="fa-solid fa-lock text-emerald-400/70 text-xs"></i>
+              <input id="address" spellcheck="false"
+                     class="flex-1 bg-transparent text-sm font-mono outline-none" value="nexus://home">
+            </div>
+            <div class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-emerald-400/10 border border-emerald-400/30 text-emerald-400 text-xs whitespace-nowrap" title="The Nexus bridge extension is active in this browser">
+              <i class="fa-solid fa-puzzle-piece"></i><span class="hidden sm:inline">Bridge</span>
+            </div>
+          </div>
+          <!-- tab strip -->
+          <div class="flex items-center px-3 pt-2 bg-zinc-800/30">
+            <div class="flex items-center gap-2 bg-zinc-900 border border-zinc-700 border-b-0 rounded-t-xl px-3 py-1.5 text-xs">
+              <span id="tab-fav">🌐</span>
+              <span id="tab-title" class="max-w-[160px] truncate">Nexus Start</span>
+              <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+            </div>
+          </div>
+          <!-- viewport -->
+          <iframe id="viewport" class="w-full block" style="height:480px;border:0"
+                  src="sites/home.html" title="Sandbox tab"></iframe>
+        </div>
+        <p class="text-xs text-zinc-500 mt-3 px-1">
+          Everything in this window is real DOM served from this site's origin, which is why the
+          in-page agent can drive it. The real extension does the same to <em>any</em> tab — it just
+          reaches it through the local bridge instead of an iframe.
+        </p>
+      </div>
+
+      <!-- ============ AI console ============ -->
+      <div class="lg:col-span-2">
+        <div class="bg-zinc-900 border border-zinc-700 rounded-3xl p-5">
+          <div class="text-sm font-semibold text-zinc-300 mb-3 flex items-center gap-2">
+            <i class="fa-solid fa-robot text-emerald-400"></i> AI Console
+          </div>
+
+          <!-- Autonomous tasks -->
+          <div class="text-xs text-zinc-500 mb-2">Run an autonomous task</div>
+          <div class="grid grid-cols-1 gap-2 mb-5">
+            <button class="task-btn text-left px-4 py-3 bg-zinc-800 hover:bg-zinc-700 rounded-2xl text-sm transition-colors flex items-center gap-3" data-task="shop">
+              <span class="text-lg">🛍️</span><span>Buy the wireless headphones</span>
+            </button>
+            <button class="task-btn text-left px-4 py-3 bg-zinc-800 hover:bg-zinc-700 rounded-2xl text-sm transition-colors flex items-center gap-3" data-task="login">
+              <span class="text-lg">🔐</span><span>Fill &amp; submit the sign-in form</span>
+            </button>
+            <button class="task-btn text-left px-4 py-3 bg-zinc-800 hover:bg-zinc-700 rounded-2xl text-sm transition-colors flex items-center gap-3" data-task="search">
+              <span class="text-lg">🔎</span><span>Search the web and read results</span>
+            </button>
+          </div>
+
+          <!-- Single command -->
+          <div class="text-xs text-zinc-500 mb-2">…or send one command</div>
+          <div class="flex flex-wrap gap-1.5 mb-2" id="chips"></div>
+          <textarea id="cmd-input" rows="3" spellcheck="false"
+            class="w-full bg-zinc-950 border border-zinc-700 rounded-xl px-3 py-2 text-xs font-mono mb-2 resize-y"
+            >{ "action": "get_url" }</textarea>
+          <button id="run-btn" class="w-full py-2.5 bg-emerald-400 hover:bg-emerald-300 text-zinc-950 font-semibold rounded-xl text-sm transition-colors">
+            <i class="fa-solid fa-play mr-1"></i> Run command
+          </button>
+
+          <!-- Result -->
+          <div class="text-xs text-zinc-500 mt-5 mb-2">Result</div>
+          <div id="result" class="bg-zinc-950 border border-zinc-800 rounded-xl p-3 min-h-[70px] text-xs font-mono text-zinc-400 overflow-auto max-h-56">
+            Pick a task or a command to see the round-trip.
+          </div>
+
+          <!-- Log -->
+          <div class="text-xs text-zinc-500 mt-5 mb-2">Activity log</div>
+          <div id="log" class="bg-zinc-950 border border-zinc-800 rounded-xl p-2.5 h-40 overflow-y-auto text-xs font-mono space-y-1">
+            <div class="text-zinc-600">ready.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="agent.js"></script>
+  <script>
+  // ---------------- sandbox browser shell ----------------
+  const SITES = {
+    home:   "sites/home.html",
+    search: "sites/search.html",
+    shop:   "sites/shop.html",
+    login:  "sites/login.html",
+  };
+  const ALIAS = { find: "search", store: "shop", account: "login", start: "home" };
+  const FAV = { home: "🌐", search: "🔎", shop: "🛍️", login: "🔐" };
+
+  const iframe   = document.getElementById("viewport");
+  const address  = document.getElementById("address");
+  const tabTitle = document.getElementById("tab-title");
+  const tabFav   = document.getElementById("tab-fav");
+  const logEl    = document.getElementById("log");
+  const resultEl = document.getElementById("result");
+  const cmdInput = document.getElementById("cmd-input");
+
+  let history = ["nexus://home"];
+  let hindex = 0;
+  let suppressPush = false;
+  let pendingLoad = null;
+
+  function siteKeyFromPath(path) {
+    const file = (path || "").split("/").pop().split("?")[0];
+    return Object.keys(SITES).find((k) => SITES[k].endsWith(file)) || "home";
+  }
+  function nexusToPath(u) {
+    u = (u || "").trim();
+    let name = "home", qs = "";
+    const m = u.match(/^nexus:\/\/([a-z]+)(\?.*)?$/i);
+    if (m) { name = m[1].toLowerCase(); qs = m[2] || ""; }
+    else if (/^[a-z]+$/i.test(u)) name = u.toLowerCase();
+    else if (u.indexOf(".html") !== -1) return u;
+    name = ALIAS[name] || name;
+    return (SITES[name] || SITES.home) + qs;
+  }
+  function currentNexusUrl() {
+    try {
+      const loc = iframe.contentWindow.location;
+      const key = siteKeyFromPath(loc.pathname);
+      return "nexus://" + key + (loc.search || "");
+    } catch (e) { return "nexus://home"; }
+  }
+
+  function loadPath(path) {
+    return new Promise((resolve) => { pendingLoad = resolve; iframe.src = path; });
+  }
+  async function navigate(nexusUrl) {
+    await loadPath(nexusToPath(nexusUrl));
+    return currentNexusUrl();
+  }
+
+  iframe.addEventListener("load", () => {
+    const cur = currentNexusUrl();
+    address.value = cur;
+    let title = "Sandbox";
+    try { title = iframe.contentDocument.title || cur; } catch (e) {}
+    tabTitle.textContent = title;
+    tabFav.textContent = FAV[siteKeyFromPath(cur)] || "🌐";
+    if (suppressPush) { suppressPush = false; }
+    else if (history[hindex] !== cur) {
+      history = history.slice(0, hindex + 1);
+      history.push(cur); hindex++;
+    }
+    updateNavButtons();
+    if (pendingLoad) { const r = pendingLoad; pendingLoad = null; r(); }
+  });
+
+  function updateNavButtons() {
+    document.getElementById("btn-back").disabled = hindex <= 0;
+    document.getElementById("btn-fwd").disabled = hindex >= history.length - 1;
+  }
+  document.getElementById("btn-back").onclick = () => {
+    if (hindex > 0) { hindex--; suppressPush = true; iframe.src = nexusToPath(history[hindex]); }
+  };
+  document.getElementById("btn-fwd").onclick = () => {
+    if (hindex < history.length - 1) { hindex++; suppressPush = true; iframe.src = nexusToPath(history[hindex]); }
+  };
+  document.getElementById("btn-reload").onclick = () => { suppressPush = true; iframe.src = nexusToPath(currentNexusUrl()); };
+  address.addEventListener("keydown", (e) => { if (e.key === "Enter") navigate(address.value); });
+
+  // ---------------- screenshot (SVG foreignObject, no libraries) ----------------
+  async function captureScreenshot() {
+    const doc = iframe.contentDocument;
+    const w = iframe.clientWidth, h = iframe.clientHeight;
+    const clone = doc.documentElement.cloneNode(true);
+    clone.setAttribute("xmlns", "http://www.w3.org/1999/xhtml");
+    const xml = new XMLSerializer().serializeToString(clone);
+    const svg =
+      "<svg xmlns='http://www.w3.org/2000/svg' width='" + w + "' height='" + h + "'>" +
+      "<foreignObject x='0' y='0' width='" + w + "' height='" + h + "'>" + xml +
+      "</foreignObject></svg>";
+    const url = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+    return await new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => {
+        try {
+          const c = document.createElement("canvas");
+          c.width = w; c.height = h;
+          const g = c.getContext("2d");
+          g.fillStyle = "#0b0f19"; g.fillRect(0, 0, w, h);
+          g.drawImage(img, 0, 0);
+          resolve(c.toDataURL("image/png"));
+        } catch (e) { reject(new Error("capture blocked: " + e.message)); }
+      };
+      img.onerror = () => reject(new Error("could not render page snapshot"));
+      img.src = url;
+    });
+  }
+
+  // ---------------- logging / rendering ----------------
+  function escapeHtml(s) {
+    return String(s == null ? "" : s).replace(/[&<>"']/g, (c) =>
+      ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  }
+  function logLine(text, kind) {
+    const ready = logEl.querySelector(".text-zinc-600");
+    if (ready) ready.remove();
+    const div = document.createElement("div");
+    div.className = "log-line pl-2 py-0.5 " + (kind || "");
+    const t = new Date().toLocaleTimeString();
+    div.innerHTML = '<span class="text-zinc-600">[' + t + "]</span> " + text;
+    logEl.appendChild(div);
+    logEl.scrollTop = logEl.scrollHeight;
+  }
+  function showResult(cmd, result) {
+    if (cmd.action === "screenshot" && result && result.data_url) {
+      resultEl.innerHTML = '<img src="' + result.data_url + '" alt="screenshot" class="rounded-lg border border-zinc-700 w-full">';
+      return;
+    }
+    resultEl.textContent = JSON.stringify(result, null, 2);
+  }
+
+  const opts = { navigate, currentUrl: currentNexusUrl, screenshot: captureScreenshot };
+
+  async function runCommand(cmd, { silent } = {}) {
+    logLine("→ " + escapeHtml(JSON.stringify(cmd)), "");
+    try {
+      const result = await window.NexusAgent.execute(iframe, cmd, opts);
+      if (!silent) showResult(cmd, result);
+      const summary = cmd.action === "screenshot"
+        ? "screenshot captured"
+        : (cmd.action + " ok");
+      logLine("✓ " + summary, "ok");
+      return result;
+    } catch (e) {
+      const msg = (e && e.message) || String(e);
+      logLine("✗ " + escapeHtml(cmd.action + ": " + msg), "err");
+      if (!silent) resultEl.textContent = "Error: " + msg;
+      throw e;
+    }
+  }
+
+  // ---------------- single-command UI ----------------
+  const CHIPS = [
+    { label: "get_url", cmd: { action: "get_url" } },
+    { label: "query links", cmd: { action: "query", args: { selector: "a" } } },
+    { label: "go to store", cmd: { action: "navigate", args: { url: "nexus://shop" } } },
+    { label: "click a product", cmd: { action: "click", args: { selector: 'button[data-item="Wireless Headphones"]' } } },
+    { label: "read cart", cmd: { action: "get_text", args: { selector: "#cart-count" } } },
+    { label: "screenshot", cmd: { action: "screenshot" } },
+  ];
+  const chipsEl = document.getElementById("chips");
+  CHIPS.forEach((c) => {
+    const b = document.createElement("button");
+    b.className = "chip px-2.5 py-1 bg-zinc-800 rounded-lg text-xs";
+    b.textContent = c.label;
+    b.onclick = () => { cmdInput.value = JSON.stringify(c.cmd, null, 2); runFromEditor(); };
+    chipsEl.appendChild(b);
+  });
+
+  async function runFromEditor() {
+    let cmd;
+    try { cmd = JSON.parse(cmdInput.value); }
+    catch (e) { resultEl.textContent = "Invalid JSON: " + e.message; return; }
+    setBusy(true);
+    try { await runCommand(cmd); } catch (e) {} finally { setBusy(false); }
+  }
+  document.getElementById("run-btn").onclick = runFromEditor;
+
+  // ---------------- autonomous tasks ----------------
+  const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+  const TASKS = {
+    shop: [
+      { say: "Opening the Nexus Store…", cmd: { action: "navigate", args: { url: "nexus://shop" } } },
+      { say: "Looking at what's for sale…", cmd: { action: "query", args: { selector: "button[data-item]" } } },
+      { say: "Adding the wireless headphones to the cart…", cmd: { action: "click", args: { selector: 'button[data-item="Wireless Headphones"]' } } },
+      { say: "Confirming the cart updated…", cmd: { action: "get_text", args: { selector: "#cart-count" } } },
+    ],
+    login: [
+      { say: "Opening the sign-in page…", cmd: { action: "navigate", args: { url: "nexus://login" } } },
+      { say: "Typing the username…", cmd: { action: "type", args: { selector: "#username", text: "ada@nexus.ai" } } },
+      { say: "Typing the password…", cmd: { action: "type", args: { selector: "#password", text: "correct-horse-battery" } } },
+      { say: "Submitting the form…", cmd: { action: "click", args: { selector: "text=Sign In" } } },
+      { say: "Reading the confirmation…", cmd: { action: "get_text", args: { selector: "#welcome-name" } } },
+    ],
+    search: [
+      { say: "Opening NexusFind…", cmd: { action: "navigate", args: { url: "nexus://search" } } },
+      { say: "Typing a query and hitting enter…", cmd: { action: "type", args: { selector: "#q", text: "wireless headphones", submit: true } } },
+      { say: "Reading the results…", cmd: { action: "get_text", args: { selector: "#results", max_chars: 300 } } },
+    ],
+  };
+
+  function setBusy(b) {
+    document.querySelectorAll(".task-btn, #run-btn, .chip").forEach((el) => (el.disabled = b));
+    document.querySelectorAll(".task-btn, #run-btn").forEach((el) => (el.style.opacity = b ? .5 : 1));
+  }
+
+  async function runTask(name) {
+    const steps = TASKS[name];
+    if (!steps) return;
+    setBusy(true);
+    logLine("▶ task: " + name, "say");
+    try {
+      for (const step of steps) {
+        logLine("🤖 " + escapeHtml(step.say), "say");
+        await wait(650);
+        const result = await runCommand(step.cmd, { silent: false });
+        // let navigations / form GETs settle before the next step reads the DOM
+        const settle = step.cmd.action === "navigate" || (step.cmd.args && step.cmd.args.submit) ? 800 : 350;
+        await wait(settle);
+      }
+      logLine("✅ task complete", "ok");
+    } catch (e) {
+      logLine("⛔ task stopped: " + escapeHtml((e && e.message) || e), "err");
+    } finally {
+      setBusy(false);
+    }
+  }
+  document.querySelectorAll(".task-btn").forEach((b) => {
+    b.addEventListener("click", () => runTask(b.dataset.task));
+  });
+
+  updateNavButtons();
+  </script>
+</body>
+</html>

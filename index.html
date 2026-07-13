@@ -3,127 +3,203 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nexus AI • Browser Bridge</title>
+    <title>Nexus AI • Browser Bridge — Live Demo</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@500;600&display=swap');
-        
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
         body { font-family: 'Inter', system-ui, sans-serif; }
         .font-display { font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif; }
-        
-        .app-tile {
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-        }
+        .font-mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+
+        .app-tile { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
         .app-tile:hover {
             transform: translateY(-4px);
             box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
         }
-        
         .section-title {
-            font-size: 0.875rem;
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
-            color: #71717a;
+            font-size: 0.875rem; letter-spacing: 0.5px; text-transform: uppercase; color: #71717a;
         }
+        /* Highlight pulse when the bridge touches a demo target */
+        @keyframes bridgeHit {
+            0%   { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.7); }
+            100% { box-shadow: 0 0 0 12px rgba(52, 211, 153, 0); }
+        }
+        .bridge-hit { animation: bridgeHit 0.7s ease-out; }
+        .log-line { border-left: 2px solid #27272a; }
+        .log-line.ok  { border-left-color: #34d399; }
+        .log-line.err { border-left-color: #f87171; }
     </style>
 </head>
 <body class="bg-zinc-950 text-zinc-200">
     <!-- Top Bar -->
-    <div class="border-b border-zinc-800 bg-zinc-950/95 backdrop-blur sticky top-0 z-50">
+    <header class="border-b border-zinc-800 bg-zinc-950/95 backdrop-blur sticky top-0 z-50">
         <div class="max-w-screen-xl mx-auto px-6 py-4 flex items-center justify-between">
-            <div class="flex items-center gap-x-3">
-                <div class="flex items-center gap-x-2">
-                    <div class="w-9 h-9 bg-white rounded-2xl flex items-center justify-center">
-                        <i class="fa-solid fa-link text-zinc-950 text-2xl"></i>
-                    </div>
-                    <div>
-                        <span class="font-display text-2xl font-semibold tracking-tighter">Nexus AI</span>
-                    </div>
+            <div class="flex items-center gap-x-2">
+                <div class="w-9 h-9 bg-white rounded-2xl flex items-center justify-center">
+                    <i class="fa-solid fa-link text-zinc-950 text-xl"></i>
                 </div>
+                <span class="font-display text-2xl font-semibold tracking-tighter">Nexus AI</span>
             </div>
-            
-            <div class="flex items-center gap-x-4">
-                <a href="https://github.com/fitzyracing1/nexus-ai" target="_blank"
-                   class="px-5 py-2 bg-zinc-900 hover:bg-zinc-800 rounded-2xl text-sm flex items-center gap-x-2 transition-colors">
-                    <i class="fa-brands fa-github"></i>
-                    <span>GitHub</span>
-                </a>
-            </div>
+            <a href="https://github.com/fitzyracing1/nexus-ai" target="_blank" rel="noopener"
+               class="px-5 py-2 bg-zinc-900 hover:bg-zinc-800 rounded-2xl text-sm flex items-center gap-x-2 transition-colors">
+                <i class="fa-brands fa-github"></i><span>GitHub</span>
+            </a>
         </div>
-    </nav>
+    </header>
 
     <div class="max-w-screen-xl mx-auto px-6 pt-12 pb-20">
-        
+
         <!-- Hero -->
-        <div class="max-w-3xl mb-16">
-            <div class="inline px-4 py-1.5 rounded-3xl bg-emerald-400/10 text-emerald-400 text-xs tracking-[2px] mb-6">LOCAL AI • CHROME BRIDGE</div>
-            
-            <h1 class="font-display text-6xl md:text-7xl tracking-[-3px] font-semibold leading-none mb-6">
+        <div class="max-w-3xl mb-14">
+            <div class="inline-block px-4 py-1.5 rounded-3xl bg-emerald-400/10 text-emerald-400 text-xs tracking-[2px] mb-6">LOCAL AI • CHROME BRIDGE</div>
+            <h1 class="font-display text-5xl md:text-7xl tracking-[-3px] font-semibold leading-none mb-6">
                 Let any local AI<br>drive your browser.
             </h1>
-            
-            <p class="text-2xl text-zinc-400 max-w-2xl">
-                Nexus AI is a local bridge + Chrome extension that lets your local AI securely control real Chrome tabs — one service at a time.
+            <p class="text-xl md:text-2xl text-zinc-400 max-w-2xl">
+                Nexus AI is a local bridge + Chrome extension that lets your AI securely control real Chrome tabs.
+                Try the <span class="text-zinc-200 font-medium">zero-install sandbox</span> below — a browser inside
+                your browser with the bridge built in — or run the <span class="text-zinc-200 font-medium">live demo</span>
+                against your own bridge.
             </p>
-            
-            <div class="flex gap-4 mt-8">
-                <a href="https://github.com/fitzyracing1/nexus-ai" target="_blank"
-                   class="px-8 py-4 bg-white text-zinc-950 font-semibold rounded-3xl flex items-center gap-x-3 hover:bg-zinc-100 transition-all">
-                    View on GitHub
+            <div class="flex flex-wrap gap-4 mt-8">
+                <a href="sandbox/index.html"
+                   class="px-8 py-4 bg-emerald-400 text-zinc-950 font-semibold rounded-3xl flex items-center gap-x-3 hover:bg-emerald-300 transition-all">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i> Open the Sandbox — no install
                 </a>
                 <button onclick="document.getElementById('demo-section').scrollIntoView({ behavior: 'smooth' })"
-                        class="px-8 py-4 border border-zinc-700 hover:bg-zinc-900 rounded-3xl flex items-center gap-x-3 transition-all">
-                    See the Demo
+                        class="px-8 py-4 bg-white text-zinc-950 font-semibold rounded-3xl flex items-center gap-x-3 hover:bg-zinc-100 transition-all">
+                    <i class="fa-solid fa-bolt"></i> Live Demo
                 </button>
+                <a href="https://github.com/fitzyracing1/nexus-ai#one-time-setup" target="_blank" rel="noopener"
+                   class="px-8 py-4 border border-zinc-700 hover:bg-zinc-900 rounded-3xl flex items-center gap-x-3 transition-all">
+                    Setup Guide
+                </a>
             </div>
         </div>
 
-        <!-- Browser Home Demo -->
+        <!-- ============ LIVE BRIDGE DEMO ============ -->
         <div id="demo-section" class="mb-16">
-            <div class="section-title mb-4 px-1">Browser Home (Concept)</div>
-            
-            <div class="bg-zinc-900 border border-zinc-700 rounded-3xl p-8">
-                <div class="mb-6">
-                    <div class="flex items-center justify-between mb-4">
+            <div class="section-title mb-4 px-1">Live Bridge Demo</div>
+
+            <a href="sandbox/index.html"
+               class="flex items-center gap-x-3 mb-4 px-5 py-3 rounded-2xl bg-emerald-400/10 border border-emerald-400/30 text-emerald-300 hover:bg-emerald-400/20 transition-colors text-sm">
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                <span>Don't want to install anything? <span class="font-semibold underline">Open the zero-install Sandbox</span> — a browser-in-your-browser with the bridge built in.</span>
+            </a>
+
+            <div class="bg-zinc-900 border border-zinc-700 rounded-3xl p-6 md:p-8">
+
+                <!-- Environment checklist -->
+                <div class="grid md:grid-cols-3 gap-3 mb-8">
+                    <div id="chk-browser" class="flex items-center gap-x-3 bg-zinc-950 border border-zinc-800 rounded-2xl px-4 py-3">
+                        <i class="fa-solid fa-circle-notch fa-spin text-zinc-500"></i>
                         <div>
-                            <div class="font-semibold text-xl">Your AI-Powered Home Screen</div>
-                            <div class="text-sm text-zinc-400">Pin web apps and let your local AI interact with them securely.</div>
+                            <div class="text-sm font-medium">Extensions-capable browser</div>
+                            <div class="text-xs text-zinc-500" data-detail>checking…</div>
                         </div>
-                        <button onclick="showAddAppModal()" 
-                                class="text-sm px-4 py-2 bg-emerald-400 text-zinc-950 rounded-2xl flex items-center gap-x-2 font-medium">
-                            <i class="fa-solid fa-plus"></i>
-                            <span>Add App</span>
-                        </button>
+                    </div>
+                    <div id="chk-extension" class="flex items-center gap-x-3 bg-zinc-950 border border-zinc-800 rounded-2xl px-4 py-3">
+                        <i class="fa-solid fa-circle-notch fa-spin text-zinc-500"></i>
+                        <div>
+                            <div class="text-sm font-medium">Extension installed</div>
+                            <div class="text-xs text-zinc-500" data-detail>checking…</div>
+                        </div>
+                    </div>
+                    <div id="chk-bridge" class="flex items-center gap-x-3 bg-zinc-950 border border-zinc-800 rounded-2xl px-4 py-3">
+                        <i class="fa-solid fa-circle-notch fa-spin text-zinc-500"></i>
+                        <div>
+                            <div class="text-sm font-medium">Bridge running</div>
+                            <div class="text-xs text-zinc-500" data-detail>checking…</div>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Pinned Apps Grid -->
-                <div id="pinned-apps" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                    <!-- Populated by JS -->
+                <!-- Token -->
+                <div class="mb-8">
+                    <label class="text-xs text-zinc-400 block mb-1.5 flex items-center gap-x-2">
+                        Bridge auth token
+                        <a href="http://127.0.0.1:17777/setup" target="_blank" rel="noopener"
+                           class="text-emerald-400 hover:underline">where do I find this?</a>
+                    </label>
+                    <div class="flex gap-3">
+                        <input id="tokenInput" type="text" spellcheck="false" placeholder="paste the token the bridge printed on startup"
+                               class="flex-1 bg-zinc-950 border border-zinc-700 rounded-2xl px-4 py-3 text-sm font-mono">
+                        <button id="saveTokenBtn"
+                                class="px-5 py-3 bg-zinc-800 hover:bg-zinc-700 rounded-2xl text-sm font-medium transition-colors">Save &amp; recheck</button>
+                    </div>
+                    <p class="text-xs text-zinc-500 mt-2">
+                        Stored only in this browser (localStorage). It authenticates this page to your local bridge, exactly like the extension popup does.
+                    </p>
                 </div>
 
-                <!-- Grok / AI Bridge Demo -->
-                <div class="mt-8 pt-8 border-t border-zinc-700">
-                    <div class="flex flex-col md:flex-row md:items-center gap-6">
-                        <div class="flex-1">
-                            <div class="flex items-center gap-x-3 mb-2">
-                                <i class="fa-solid fa-robot text-emerald-400 text-2xl"></i>
-                                <div class="font-semibold">AI Browser Bridge</div>
-                            </div>
-                            <p class="text-sm text-zinc-400">Demonstration of secure, one-service-at-a-time AI control over browser tabs.</p>
+                <div class="grid lg:grid-cols-2 gap-8">
+                    <!-- Left: actions -->
+                    <div>
+                        <div class="text-sm font-medium mb-3 text-zinc-300">Send a real command</div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <button data-cmd="get_url" class="cmd-btn"><i class="fa-solid fa-location-dot"></i> Read URL &amp; title</button>
+                            <button data-cmd="type" class="cmd-btn"><i class="fa-solid fa-keyboard"></i> Type into the box</button>
+                            <button data-cmd="click" class="cmd-btn"><i class="fa-solid fa-hand-pointer"></i> Click the counter</button>
+                            <button data-cmd="get_text" class="cmd-btn"><i class="fa-solid fa-align-left"></i> Read a heading</button>
+                            <button data-cmd="screenshot" class="cmd-btn col-span-2"><i class="fa-solid fa-camera"></i> Screenshot this page</button>
                         </div>
-                        <button onclick="simulateAIBridge()"
-                                class="px-6 py-3 bg-emerald-400 hover:bg-emerald-300 transition-colors text-zinc-950 font-semibold rounded-3xl text-sm flex items-center gap-x-2">
-                            <span>Simulate AI Bridge</span>
-                        </button>
+
+                        <!-- Demo targets the bridge acts on -->
+                        <div class="mt-6 bg-zinc-950 border border-zinc-800 rounded-2xl p-5">
+                            <div id="demo-heading" class="text-sm font-semibold text-emerald-400 mb-3">🎯 Live targets on this page</div>
+                            <label class="text-xs text-zinc-500 block mb-1.5">Input the bridge will type into</label>
+                            <input id="demo-input" type="text" placeholder="the AI will fill this in…"
+                                   class="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-3 py-2.5 text-sm mb-4">
+                            <div class="flex items-center gap-x-4">
+                                <button id="demo-counter-btn"
+                                        class="px-4 py-2.5 bg-zinc-800 hover:bg-zinc-700 rounded-xl text-sm font-medium transition-colors">
+                                    Clicked <span id="demo-counter" class="font-mono text-emerald-400">0</span> times
+                                </button>
+                                <span class="text-xs text-zinc-500">the bridge will click this for you</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: live output + log -->
+                    <div>
+                        <div class="text-sm font-medium mb-3 text-zinc-300">Result</div>
+                        <div id="result-panel" class="bg-zinc-950 border border-zinc-800 rounded-2xl p-4 min-h-[120px] text-sm text-zinc-400">
+                            Run a command to see the round-trip: page → bridge → extension → this page.
+                        </div>
+
+                        <div class="text-sm font-medium mt-6 mb-3 text-zinc-300">Activity log</div>
+                        <div id="log" class="bg-zinc-950 border border-zinc-800 rounded-2xl p-3 h-48 overflow-y-auto text-xs font-mono space-y-1">
+                            <div class="text-zinc-600">waiting for commands…</div>
+                        </div>
                     </div>
                 </div>
             </div>
+
+            <p class="text-xs text-zinc-500 mt-4 px-1 leading-relaxed">
+                Works in Chrome, Edge, Brave, or any Chromium browser that supports extensions.
+                Each button POSTs a genuine command to <code class="text-zinc-400">http://127.0.0.1:17777</code>; your
+                extension picks it up and runs it on the active tab — which is this page. Nothing is faked or simulated.
+            </p>
         </div>
 
-        <div class="text-center text-xs text-zinc-500">
-            This is a conceptual demo of how Nexus AI + a minimal browser home could work together.
+        <!-- ============ BROWSER HOME (concept) ============ -->
+        <div class="mb-16">
+            <div class="section-title mb-4 px-1">Browser Home</div>
+            <div class="bg-zinc-900 border border-zinc-700 rounded-3xl p-6 md:p-8">
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <div class="font-semibold text-xl">Your AI-Powered Home Screen</div>
+                        <div class="text-sm text-zinc-400">Pin web apps and let your local AI interact with them securely.</div>
+                    </div>
+                    <button onclick="showAddAppModal()"
+                            class="text-sm px-4 py-2 bg-emerald-400 text-zinc-950 rounded-2xl flex items-center gap-x-2 font-medium">
+                        <i class="fa-solid fa-plus"></i><span>Add App</span>
+                    </button>
+                </div>
+                <div id="pinned-apps" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4"></div>
+            </div>
         </div>
 
     </div>
@@ -132,7 +208,6 @@
     <div id="add-app-modal" onclick="if (event.target.id === 'add-app-modal') hideAddAppModal()" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-[100]">
         <div onclick="event.stopImmediatePropagation()" class="bg-zinc-900 border border-zinc-700 rounded-3xl w-full max-w-md mx-4 p-6">
             <h3 class="font-semibold text-xl mb-4">Add Web App</h3>
-            
             <div class="space-y-4">
                 <div>
                     <label class="text-xs text-zinc-400 block mb-1.5">App Name</label>
@@ -143,7 +218,6 @@
                     <input id="app-url" type="text" value="https://grok.x.ai" class="w-full bg-zinc-950 border border-zinc-700 rounded-2xl px-4 py-3 text-sm">
                 </div>
             </div>
-            
             <div class="flex gap-3 mt-6">
                 <button onclick="hideAddAppModal()" class="flex-1 py-3 rounded-2xl border border-zinc-700 hover:bg-zinc-800 transition-colors">Cancel</button>
                 <button onclick="addNewApp()" class="flex-1 py-3 bg-emerald-400 text-zinc-950 font-semibold rounded-2xl hover:bg-emerald-300 transition-colors">Add App</button>
@@ -151,93 +225,273 @@
         </div>
     </div>
 
+    <style>
+        .cmd-btn {
+            display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+            padding: 0.75rem 1rem; border-radius: 1rem; font-size: 0.875rem; font-weight: 500;
+            background: #34d399; color: #09090b; transition: all 0.15s;
+        }
+        .cmd-btn:hover:not(:disabled) { background: #6ee7b7; }
+        .cmd-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    </style>
+
     <script>
-        let pinnedApps = JSON.parse(localStorage.getItem('nexus_pinned_apps')) || [
-            { id: 1, name: "Grok", url: "https://grok.x.ai", icon: "fa-robot" },
-            { id: 2, name: "3XB", url: "https://earthenwarecomputer.com", icon: "fa-tags" },
-            { id: 3, name: "xAI", url: "https://x.ai", icon: "fa-brain" }
-        ];
+    // ======================= LIVE BRIDGE DEMO =======================
+    const BRIDGE = "http://127.0.0.1:17777";
+    const TOKEN_KEY = "nexus_bridge_token";
 
-        function savePinnedApps() {
-            localStorage.setItem('nexus_pinned_apps', JSON.stringify(pinnedApps));
+    const els = {
+        token: document.getElementById("tokenInput"),
+        log: document.getElementById("log"),
+        result: document.getElementById("result-panel"),
+        counter: document.getElementById("demo-counter"),
+        demoInput: document.getElementById("demo-input"),
+    };
+
+    let counterValue = 0;
+    document.getElementById("demo-counter-btn").addEventListener("click", () => {
+        els.counter.textContent = ++counterValue;
+    });
+
+    // ---- logging ----
+    function logLine(text, kind) {
+        const first = els.log.querySelector(".text-zinc-600");
+        if (first) first.remove();
+        const div = document.createElement("div");
+        div.className = "log-line pl-2 py-0.5 " + (kind || "");
+        const t = new Date().toLocaleTimeString();
+        div.innerHTML = `<span class="text-zinc-600">[${t}]</span> ${text}`;
+        els.log.appendChild(div);
+        els.log.scrollTop = els.log.scrollHeight;
+    }
+
+    function flash(el) {
+        if (!el) return;
+        el.classList.remove("bridge-hit");
+        void el.offsetWidth;      // restart animation
+        el.classList.add("bridge-hit");
+    }
+
+    // ---- checklist UI ----
+    function setCheck(id, state, detail) {
+        // state: 'ok' | 'bad' | 'warn'
+        const box = document.getElementById(id);
+        const icon = box.querySelector("i");
+        const det = box.querySelector("[data-detail]");
+        const map = {
+            ok:   ["fa-circle-check", "text-emerald-400"],
+            bad:  ["fa-circle-xmark", "text-red-400"],
+            warn: ["fa-triangle-exclamation", "text-amber-400"],
+        };
+        icon.className = "fa-solid " + map[state][0] + " " + map[state][1];
+        det.textContent = detail;
+    }
+
+    // ---- environment detection ----
+    function detectBrowser() {
+        const ua = navigator.userAgent;
+        const isChromium = !!window.chrome && /Chrome|Chromium|Edg|OPR|Brave/i.test(ua);
+        if (isChromium) {
+            setCheck("chk-browser", "ok", "Chromium detected — extensions supported");
+        } else {
+            setCheck("chk-browser", "warn", "This browser may not support the extension");
         }
+        return isChromium;
+    }
 
-        function renderPinnedApps() {
-            const container = document.getElementById('pinned-apps');
-            container.innerHTML = '';
+    function detectExtension() {
+        return new Promise((resolve) => {
+            // Fast path: content script stamps the DOM on injection.
+            if (document.documentElement.getAttribute("data-nexus-bridge")) {
+                setCheck("chk-extension", "ok",
+                    "v" + document.documentElement.getAttribute("data-nexus-bridge") + " responding");
+                return resolve(true);
+            }
+            // Otherwise ping and wait briefly for a pong.
+            let done = false;
+            const onMsg = (ev) => {
+                if (ev.source === window && ev.data && ev.data.__nexusBridge === "pong") {
+                    done = true;
+                    window.removeEventListener("message", onMsg);
+                    setCheck("chk-extension", "ok", "v" + (ev.data.version || "?") + " responding");
+                    resolve(true);
+                }
+            };
+            window.addEventListener("message", onMsg);
+            window.postMessage({ __nexusBridge: "ping" }, "*");
+            setTimeout(() => {
+                if (done) return;
+                window.removeEventListener("message", onMsg);
+                setCheck("chk-extension", "bad", "not detected — load the unpacked extension & reload");
+                resolve(false);
+            }, 1200);
+        });
+    }
 
-            pinnedApps.forEach(app => {
-                const tile = document.createElement('div');
-                tile.className = `app-tile bg-zinc-800 border border-zinc-700 hover:border-zinc-500 rounded-3xl p-5 flex flex-col items-center text-center cursor-pointer`;
-                
-                tile.innerHTML = `
-                    <div class="w-12 h-12 bg-zinc-700 rounded-2xl flex items-center justify-center mb-3">
-                        <i class="fa-solid ${app.icon} text-2xl text-emerald-400"></i>
-                    </div>
-                    <div class="font-medium text-sm">${app.name}</div>
-                `;
+    async function detectBridge() {
+        try {
+            const r = await fetch(BRIDGE + "/health", { cache: "no-store" });
+            const j = await r.json();
+            if (j.ok) { setCheck("chk-bridge", "ok", j.version + " on :17777"); return true; }
+        } catch (_) {}
+        setCheck("chk-bridge", "bad", "not reachable — start bridge.py");
+        return false;
+    }
 
-                tile.onclick = () => window.open(app.url, '_blank');
-                tile.oncontextmenu = (e) => {
-                    e.preventDefault();
-                    if (confirm(`Remove ${app.name}?`)) {
-                        pinnedApps = pinnedApps.filter(a => a.id !== app.id);
-                        savePinnedApps();
-                        renderPinnedApps();
-                    }
-                };
+    // ---- core: send a real command through the bridge ----
+    async function sendCommand(action, args) {
+        const token = (els.token.value || "").trim();
+        if (!token) throw new Error("no auth token — paste it above first");
+        const resp = await fetch(BRIDGE + "/command", {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "X-Auth-Token": token },
+            body: JSON.stringify({ action, args: args || {}, timeout_ms: 8000 }),
+        });
+        let data = {};
+        try { data = await resp.json(); } catch (_) {}
+        if (resp.status === 401) throw new Error("token rejected by bridge (401)");
+        if (resp.status === 402) throw new Error(data.error || "free-tier limit reached (402)");
+        if (resp.status === 504) throw new Error("bridge timed out — is the extension connected and this tab active?");
+        if (!resp.ok || data.ok === false) throw new Error(data.error || ("HTTP " + resp.status));
+        return data.result || data;
+    }
 
-                container.appendChild(tile);
-            });
-        }
+    // ---- action wiring ----
+    const actions = {
+        get_url: async () => {
+            const r = await sendCommand("get_url");
+            showResult(`<div class="text-emerald-400 font-medium mb-1">This tab, read by your AI:</div>
+                <div class="font-mono text-xs break-all"><span class="text-zinc-500">url:</span> ${escapeHtml(r.url)}</div>
+                <div class="font-mono text-xs mt-1"><span class="text-zinc-500">title:</span> ${escapeHtml(r.title)}</div>`);
+            return `get_url → ${escapeHtml(r.title)}`;
+        },
+        type: async () => {
+            const text = "Hello from your local AI 👋 " + new Date().toLocaleTimeString();
+            const r = await sendCommand("type", { selector: "#demo-input", text });
+            flash(els.demoInput);
+            showResult(`<div class="text-emerald-400 font-medium mb-1">The bridge typed into the box on the left:</div>
+                <div class="font-mono text-xs">${escapeHtml(r.value || text)}</div>`);
+            return `type → filled #demo-input`;
+        },
+        click: async () => {
+            const before = counterValue;
+            await sendCommand("click", { selector: "#demo-counter-btn" });
+            flash(document.getElementById("demo-counter-btn"));
+            showResult(`<div class="text-emerald-400 font-medium mb-1">The bridge clicked the counter button:</div>
+                <div class="text-sm">count went from <span class="font-mono">${before}</span> to <span class="font-mono text-emerald-400">${counterValue}</span></div>`);
+            return `click → counter now ${counterValue}`;
+        },
+        get_text: async () => {
+            const r = await sendCommand("get_text", { selector: "#demo-heading", max_chars: 200 });
+            showResult(`<div class="text-emerald-400 font-medium mb-1">The bridge read the heading text:</div>
+                <div class="text-sm">${escapeHtml(r.text)}</div>`);
+            return `get_text → "${escapeHtml(r.text)}"`;
+        },
+        screenshot: async () => {
+            const r = await sendCommand("screenshot", { format: "png" });
+            showResult(`<div class="text-emerald-400 font-medium mb-2">Screenshot captured by the extension:</div>
+                <img src="${r.data_url}" alt="screenshot" class="rounded-lg border border-zinc-700 max-w-full">`);
+            return `screenshot → ${Math.round((r.data_url.length * 0.75) / 1024)} KB PNG`;
+        },
+    };
 
-        function showAddAppModal() {
-            document.getElementById('add-app-modal').classList.remove('hidden');
-            document.getElementById('add-app-modal').classList.add('flex');
-        }
+    function showResult(html) { els.result.innerHTML = html; }
+    function escapeHtml(s) {
+        return String(s == null ? "" : s).replace(/[&<>"']/g, (c) =>
+            ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+    }
 
-        function hideAddAppModal() {
-            document.getElementById('add-app-modal').classList.remove('flex');
-            document.getElementById('add-app-modal').classList.add('hidden');
-        }
+    document.querySelectorAll(".cmd-btn").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+            const cmd = btn.dataset.cmd;
+            const all = document.querySelectorAll(".cmd-btn");
+            all.forEach((b) => (b.disabled = true));
+            const original = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> running…';
+            logLine(`→ ${cmd}`, "");
+            try {
+                const summary = await actions[cmd]();
+                logLine(`✓ ${summary}`, "ok");
+            } catch (e) {
+                logLine(`✗ ${cmd}: ${escapeHtml(e.message || e)}`, "err");
+                showResult(`<div class="text-red-400 font-medium mb-1">Command failed</div>
+                    <div class="text-sm text-zinc-400">${escapeHtml(e.message || e)}</div>
+                    <div class="text-xs text-zinc-500 mt-3">Check the three status boxes above — bridge running, extension connected, token pasted?</div>`);
+            } finally {
+                all.forEach((b) => (b.disabled = false));
+                btn.innerHTML = original;
+            }
+        });
+    });
 
-        function addNewApp() {
-            const name = document.getElementById('app-name').value.trim();
-            const url = document.getElementById('app-url').value.trim();
+    document.getElementById("saveTokenBtn").addEventListener("click", async () => {
+        localStorage.setItem(TOKEN_KEY, els.token.value.trim());
+        logLine("token saved — rechecking bridge…", "");
+        await runChecks();
+    });
 
-            if (!name || !url) return alert('Please enter name and URL');
+    async function runChecks() {
+        detectBrowser();
+        await Promise.all([detectExtension(), detectBridge()]);
+    }
 
-            pinnedApps.push({ id: Date.now(), name, url, icon: 'fa-globe' });
-            savePinnedApps();
-            renderPinnedApps();
-            hideAddAppModal();
-        }
-
-        function simulateAIBridge() {
-            const modal = document.createElement('div');
-            modal.className = 'fixed inset-0 bg-black/80 flex items-center justify-center z-[200]';
-            modal.innerHTML = `
-                <div class="bg-zinc-900 border border-zinc-700 rounded-3xl max-w-md w-full mx-4 p-8">
-                    <div class="text-center">
-                        <i class="fa-solid fa-robot text-emerald-400 text-5xl mb-6"></i>
-                        <h3 class="text-2xl font-semibold mb-3">AI Bridge Activated</h3>
-                        <p class="text-zinc-400 mb-6 text-sm">In a real implementation, your local AI would now have controlled access to this browser session through Nexus AI.</p>
-                        
-                        <button onclick="this.closest('.fixed').remove()" 
-                                class="w-full py-3 bg-emerald-400 text-zinc-950 font-semibold rounded-3xl">
-                            Close Demo
-                        </button>
-                    </div>
+    // ======================= BROWSER HOME =======================
+    let pinnedApps = JSON.parse(localStorage.getItem('nexus_pinned_apps')) || [
+        { id: 1, name: "Grok", url: "https://grok.x.ai", icon: "fa-robot" },
+        { id: 2, name: "xAI", url: "https://x.ai", icon: "fa-brain" },
+        { id: 3, name: "GitHub", url: "https://github.com/fitzyracing1/nexus-ai", icon: "fa-github" }
+    ];
+    function savePinnedApps() { localStorage.setItem('nexus_pinned_apps', JSON.stringify(pinnedApps)); }
+    function renderPinnedApps() {
+        const container = document.getElementById('pinned-apps');
+        container.innerHTML = '';
+        pinnedApps.forEach(app => {
+            const tile = document.createElement('div');
+            tile.className = `app-tile bg-zinc-800 border border-zinc-700 hover:border-zinc-500 rounded-3xl p-5 flex flex-col items-center text-center cursor-pointer`;
+            const brand = app.icon === 'fa-github' ? 'fa-brands' : 'fa-solid';
+            tile.innerHTML = `
+                <div class="w-12 h-12 bg-zinc-700 rounded-2xl flex items-center justify-center mb-3">
+                    <i class="${brand} ${app.icon} text-2xl text-emerald-400"></i>
                 </div>
-            `;
-            document.body.appendChild(modal);
-        }
+                <div class="font-medium text-sm">${escapeHtml(app.name)}</div>`;
+            tile.onclick = () => window.open(app.url, '_blank', 'noopener');
+            tile.oncontextmenu = (e) => {
+                e.preventDefault();
+                if (confirm(`Remove ${app.name}?`)) {
+                    pinnedApps = pinnedApps.filter(a => a.id !== app.id);
+                    savePinnedApps(); renderPinnedApps();
+                }
+            };
+            container.appendChild(tile);
+        });
+    }
+    function showAddAppModal() {
+        const m = document.getElementById('add-app-modal');
+        m.classList.remove('hidden'); m.classList.add('flex');
+    }
+    function hideAddAppModal() {
+        const m = document.getElementById('add-app-modal');
+        m.classList.remove('flex'); m.classList.add('hidden');
+    }
+    function addNewApp() {
+        const name = document.getElementById('app-name').value.trim();
+        const url = document.getElementById('app-url').value.trim();
+        if (!name || !url) return alert('Please enter name and URL');
+        pinnedApps.push({ id: Date.now(), name, url, icon: 'fa-globe' });
+        savePinnedApps(); renderPinnedApps(); hideAddAppModal();
+    }
+    // expose for inline onclick handlers
+    window.showAddAppModal = showAddAppModal;
+    window.hideAddAppModal = hideAddAppModal;
+    window.addNewApp = addNewApp;
 
-        function init() {
-            renderPinnedApps();
-        }
-
-        window.onload = init;
+    // ======================= INIT =======================
+    (function init() {
+        const saved = localStorage.getItem(TOKEN_KEY);
+        if (saved) els.token.value = saved;
+        renderPinnedApps();
+        runChecks();
+    })();
     </script>
 </body>
 </html>
