@@ -1,0 +1,16 @@
+{
+  "name": "nexus-cloud-browser",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A real Chromium in the cloud, driven from a phone-friendly web panel.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "playwright": "^1.56.1"
+  }
+}

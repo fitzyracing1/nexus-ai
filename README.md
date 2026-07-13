@@ -41,11 +41,23 @@ extension only exposes a presence handshake to pages (so the demo can show
 "extension installed") — all real actions still go through the token-protected
 bridge, so a random website can't drive your browser.
 
+## Download the extension
+
+- **From the site:** [nexus-ai-bridge-extension.zip](https://fitzyracing1.github.io/nexus-ai/nexus-ai-bridge-extension.zip)
+- **From GitHub:** the source lives in [`extension/`](extension/); the packaged zip is at
+  [`docs/nexus-ai-bridge-extension.zip`](docs/nexus-ai-bridge-extension.zip) ("Download raw file").
+
+Load it: **Chrome/Edge** — unzip, open `chrome://extensions`, enable Developer
+mode, "Load unpacked". **Kiwi Browser (Android)** — ⋮ → Extensions → load the
+`.zip` directly.
+
 ## Pieces
 
 ```
 bridge.py              tiny stdlib HTTP server on 127.0.0.1:17777
 extension/             Chrome MV3 extension (background + content script)
+docs/                  the GitHub Pages site (landing, sandbox, extension zip)
+cloud-browser/         hosted-browser alternative you drive from a phone
 ```
 
 ## One-time setup

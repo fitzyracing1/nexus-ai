@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Nexus Cloud Browser</title>
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body { margin:0; background:#08090d; color:#e4e4e7;
+         font-family: system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+         height:100dvh; display:flex; flex-direction:column; overflow:hidden; }
+  .bar { display:flex; align-items:center; gap:6px; padding:8px; background:#12141c; border-bottom:1px solid #23262f; }
+  .icon { width:38px; height:38px; flex:0 0 auto; display:flex; align-items:center; justify-content:center;
+          background:#1c1f2a; border:0; color:#e4e4e7; border-radius:10px; font-size:16px; }
+  .icon:active { background:#2a2e3c; }
+  .icon:disabled { opacity:.4; }
+  #addr { flex:1; min-width:0; height:38px; padding:0 12px; border-radius:10px; border:1px solid #2a2e3c;
+          background:#0b0d13; color:#e4e4e7; font-size:15px; }
+  #stage { flex:1; position:relative; overflow:auto; background:#000;
+           display:flex; align-items:flex-start; justify-content:center; }
+  #screen { width:100%; max-width:520px; display:block; touch-action:manipulation; }
+  #tapdot { position:absolute; width:26px; height:26px; margin:-13px 0 0 -13px; border-radius:50%;
+            border:2px solid #34d399; background:rgba(52,211,153,.25); pointer-events:none; opacity:0;
+            transition:opacity .3s; }
+  .toolbar { display:flex; align-items:center; gap:6px; padding:8px; background:#12141c; border-top:1px solid #23262f; }
+  #textin { flex:1; min-width:0; height:38px; padding:0 12px; border-radius:10px; border:1px solid #2a2e3c;
+            background:#0b0d13; color:#e4e4e7; font-size:15px; }
+  .send { background:#34d399; color:#08130d; font-weight:700; }
+  .status { font-size:11px; color:#8b8b95; padding:2px 10px; background:#12141c; display:flex; justify-content:space-between; gap:8px; }
+  .status b { color:#a9b0bd; font-weight:600; }
+  /* token gate */
+  #gate { position:fixed; inset:0; background:#08090d; z-index:10; display:flex; flex-direction:column;
+          align-items:center; justify-content:center; padding:28px; text-align:center; }
+  #gate h1 { font-size:20px; margin:0 0 6px; }
+  #gate p { color:#8b8b95; font-size:13px; margin:0 0 20px; max-width:300px; }
+  #gate input { width:100%; max-width:320px; height:44px; padding:0 14px; border-radius:12px;
+                border:1px solid #2a2e3c; background:#0b0d13; color:#e4e4e7; font-size:15px; font-family:ui-monospace,monospace; }
+  #gate button { margin-top:12px; width:100%; max-width:320px; height:44px; border:0; border-radius:12px;
+                 background:#34d399; color:#08130d; font-weight:700; font-size:15px; }
+  .hidden { display:none !important; }
+  .spin { animation: sp 1s linear infinite; } @keyframes sp { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+  <div id="gate">
+    <div style="font-size:44px;margin-bottom:10px">🌐</div>
+    <h1>Nexus Cloud Browser</h1>
+    <p>Paste the access token the server printed at startup.</p>
+    <input id="token" type="text" inputmode="text" autocomplete="off" placeholder="access token">
+    <button id="connect">Connect</button>
+    <p id="gate-err" style="color:#f87171;margin-top:12px" class="hidden"></p>
+  </div>
+
+  <div class="bar">
+    <button class="icon" id="back" title="Back">‹</button>
+    <button class="icon" id="fwd" title="Forward">›</button>
+    <input id="addr" inputmode="url" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Search or type a URL">
+    <button class="icon send" id="go" title="Go">→</button>
+    <button class="icon" id="reload" title="Reload">⟳</button>
+  </div>
+
+  <div id="stage">
+    <img id="screen" alt="browser view">
+    <div id="tapdot"></div>
+  </div>
+
+  <div class="status">
+    <span id="title">—</span>
+    <span><b id="live">●</b> tap screen to click</span>
+  </div>
+
+  <div class="toolbar">
+    <button class="icon" id="up" title="Scroll up">▲</button>
+    <button class="icon" id="down" title="Scroll down">▼</button>
+    <input id="textin" placeholder="type into focused field…">
+    <button class="icon send" id="type" title="Type">⌨</button>
+    <button class="icon" id="enter" title="Enter">⏎</button>
+  </div>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+  let TOKEN = localStorage.getItem("cb_token") || "";
+  let VW = 390, VH = 844;       // server viewport; updated from /api/state
+  let busy = false;
+
+  function api(pathname, opts = {}) {
+    const u = pathname + (pathname.includes("?") ? "&" : "?") + "token=" + encodeURIComponent(TOKEN);
+    return fetch(u, opts);
+  }
+  async function post(action, body) {
+    setBusy(true);
+    try {
+      const r = await api("/api/" + action, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body || {}),
+      });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(j.error || ("HTTP " + r.status));
+      await refresh();
+      return j;
+    } catch (e) {
+      $("title").textContent = "⚠ " + e.message;
+    } finally { setBusy(false); }
+  }
+
+  function setBusy(b) {
+    busy = b;
+    $("live").textContent = b ? "◍" : "●";
+    $("live").className = b ? "spin" : "";
+  }
+
+  function refreshShot() {
+    $("screen").src = "/api/screenshot?token=" + encodeURIComponent(TOKEN) + "&_=" + Date.now();
+  }
+  async function refreshState() {
+    try {
+      const r = await api("/api/state");
+      if (!r.ok) return;
+      const j = await r.json();
+      if (j.viewport) { VW = j.viewport.width; VH = j.viewport.height; }
+      if (document.activeElement !== $("addr")) $("addr").value = j.url && !j.url.includes("/start") ? j.url : "";
+      $("title").textContent = j.title || j.url || "—";
+    } catch (_) {}
+  }
+  async function refresh() { refreshShot(); await refreshState(); }
+
+  // tap the screenshot -> click at mapped page coordinates
+  $("screen").addEventListener("click", (e) => {
+    if (busy) return;
+    const rect = $("screen").getBoundingClientRect();
+    const x = Math.round((e.clientX - rect.left) / rect.width * VW);
+    const y = Math.round((e.clientY - rect.top) / rect.height * VH);
+    const dot = $("tapdot");
+    dot.style.left = (e.clientX - rect.left + $("screen").offsetLeft) + "px";
+    dot.style.top = (e.clientY - rect.top + $("screen").offsetTop) + "px";
+    dot.style.opacity = "1"; setTimeout(() => (dot.style.opacity = "0"), 350);
+    post("click", { x, y });
+  });
+
+  function navFromAddr() {
+    const v = $("addr").value.trim();
+    if (v) { $("addr").blur(); post("navigate", { url: v }); }
+  }
+  $("go").addEventListener("click", navFromAddr);
+  $("addr").addEventListener("keydown", (e) => { if (e.key === "Enter") navFromAddr(); });
+  $("back").addEventListener("click", () => post("back"));
+  $("fwd").addEventListener("click", () => post("forward"));
+  $("reload").addEventListener("click", () => post("reload"));
+  $("up").addEventListener("click", () => post("scroll", { dy: -Math.round(VH * 0.7) }));
+  $("down").addEventListener("click", () => post("scroll", { dy: Math.round(VH * 0.7) }));
+  $("enter").addEventListener("click", () => post("key", { key: "Enter" }));
+  $("type").addEventListener("click", () => {
+    const t = $("textin").value;
+    if (!t) return;
+    $("textin").value = "";
+    post("type", { text: t });
+  });
+  $("textin").addEventListener("keydown", (e) => {
+    if (e.key === "Enter") { const t = $("textin").value; $("textin").value = ""; post("type", { text: t, submit: true }); }
+  });
+
+  // token gate
+  async function tryConnect(tok) {
+    const r = await fetch("/api/state?token=" + encodeURIComponent(tok));
+    if (r.status === 401) return false;
+    return true;
+  }
+  $("connect").addEventListener("click", async () => {
+    const tok = $("token").value.trim();
+    if (!tok) return;
+    if (await tryConnect(tok)) {
+      TOKEN = tok; localStorage.setItem("cb_token", tok);
+      $("gate").classList.add("hidden");
+      start();
+    } else {
+      $("gate-err").textContent = "That token was rejected.";
+      $("gate-err").classList.remove("hidden");
+    }
+  });
+
+  let pollTimer = null;
+  function start() {
+    refresh();
+    // light auto-refresh so pages that load/animate stay current
+    if (pollTimer) clearInterval(pollTimer);
+    pollTimer = setInterval(() => { if (!busy) refresh(); }, 2500);
+  }
+
+  (async function init() {
+    if (TOKEN && (await tryConnect(TOKEN))) {
+      $("gate").classList.add("hidden"); start();
+    } else {
+      $("token").value = TOKEN;
+    }
+  })();
+</script>
+</body>
+</html>
