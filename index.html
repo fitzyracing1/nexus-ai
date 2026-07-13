@@ -1,52 +1,243 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>nexus-ai</title>
-<meta name="description" content="Nexus AI — local bridge + Chrome extension that lets any local AI drive your real Chrome tabs">
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
-      background:#0d1117;color:#e6edf3;min-height:100vh;
-      display:flex;align-items:center;justify-content:center;padding:2rem}
-.card{max-width:700px;width:100%;text-align:center}
-.badge{display:inline-block;padding:.3rem 1rem;border-radius:20px;
-        font-size:.8rem;font-weight:600;background:#3572A518;
-        color:#3572A5;border:1px solid #3572A540;margin-bottom:1.6rem}
-h1{font-size:clamp(2rem,6vw,3.2rem);font-weight:800;letter-spacing:-1.5px;
-    margin-bottom:.8rem;
-    background:linear-gradient(135deg,#e6edf3 40%,#3572A5);
-    -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.bar{width:48px;height:3px;background:#3572A5;border-radius:3px;
-      margin:.8rem auto 1.8rem;opacity:.6}
-p{font-size:1.05rem;color:#8b949e;line-height:1.75;
-   max-width:500px;margin:0 auto 2.5rem}
-.btns{display:flex;gap:.75rem;justify-content:center;flex-wrap:wrap}
-a{display:inline-block;padding:.65rem 1.5rem;border-radius:8px;
-   text-decoration:none;font-weight:500;font-size:.95rem;transition:all .15s}
-.btn-p{background:#3572A5;color:#0d1117;font-weight:600}
-.btn-p:hover{opacity:.85;transform:translateY(-2px);box-shadow:0 4px 16px #3572A540}
-.btn-s{background:transparent;color:#c9d1d9;border:1px solid #30363d}
-.btn-s:hover{background:#161b22;transform:translateY(-2px)}
-footer{margin-top:3rem;font-size:.78rem;color:#484f58}
-footer a{color:#58a6ff;text-decoration:none}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus AI • Browser Bridge</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@500;600&display=swap');
+        
+        body { font-family: 'Inter', system-ui, sans-serif; }
+        .font-display { font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif; }
+        
+        .app-tile {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .app-tile:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+        
+        .section-title {
+            font-size: 0.875rem;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            color: #71717a;
+        }
+    </style>
 </head>
-<body>
-<div class="card">
-  <span class="badge">Python</span>
-  <h1>nexus-ai</h1>
-  <div class="bar"></div>
-  <p>Nexus AI — local bridge + Chrome extension that lets any local AI drive your real Chrome tabs</p>
-  <div class="btns">
-    <a class="btn-p" href="https://github.com/fitzyracing1/nexus-ai">View on GitHub</a>
-    <a class="btn-s" href="https://github.com/fitzyracing1">All Projects →</a>
-  </div>
-  <footer>
-    Built with <a href="https://pages.github.com">GitHub Pages</a> ·
-    <a href="https://github.com/fitzyracing1/nexus-ai">github.com/fitzyracing1/nexus-ai</a>
-  </footer>
-</div>
+<body class="bg-zinc-950 text-zinc-200">
+    <!-- Top Bar -->
+    <div class="border-b border-zinc-800 bg-zinc-950/95 backdrop-blur sticky top-0 z-50">
+        <div class="max-w-screen-xl mx-auto px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-x-3">
+                <div class="flex items-center gap-x-2">
+                    <div class="w-9 h-9 bg-white rounded-2xl flex items-center justify-center">
+                        <i class="fa-solid fa-link text-zinc-950 text-2xl"></i>
+                    </div>
+                    <div>
+                        <span class="font-display text-2xl font-semibold tracking-tighter">Nexus AI</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-x-4">
+                <a href="https://github.com/fitzyracing1/nexus-ai" target="_blank"
+                   class="px-5 py-2 bg-zinc-900 hover:bg-zinc-800 rounded-2xl text-sm flex items-center gap-x-2 transition-colors">
+                    <i class="fa-brands fa-github"></i>
+                    <span>GitHub</span>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-screen-xl mx-auto px-6 pt-12 pb-20">
+        
+        <!-- Hero -->
+        <div class="max-w-3xl mb-16">
+            <div class="inline px-4 py-1.5 rounded-3xl bg-emerald-400/10 text-emerald-400 text-xs tracking-[2px] mb-6">LOCAL AI • CHROME BRIDGE</div>
+            
+            <h1 class="font-display text-6xl md:text-7xl tracking-[-3px] font-semibold leading-none mb-6">
+                Let any local AI<br>drive your browser.
+            </h1>
+            
+            <p class="text-2xl text-zinc-400 max-w-2xl">
+                Nexus AI is a local bridge + Chrome extension that lets your local AI securely control real Chrome tabs — one service at a time.
+            </p>
+            
+            <div class="flex gap-4 mt-8">
+                <a href="https://github.com/fitzyracing1/nexus-ai" target="_blank"
+                   class="px-8 py-4 bg-white text-zinc-950 font-semibold rounded-3xl flex items-center gap-x-3 hover:bg-zinc-100 transition-all">
+                    View on GitHub
+                </a>
+                <button onclick="document.getElementById('demo-section').scrollIntoView({ behavior: 'smooth' })"
+                        class="px-8 py-4 border border-zinc-700 hover:bg-zinc-900 rounded-3xl flex items-center gap-x-3 transition-all">
+                    See the Demo
+                </button>
+            </div>
+        </div>
+
+        <!-- Browser Home Demo -->
+        <div id="demo-section" class="mb-16">
+            <div class="section-title mb-4 px-1">Browser Home (Concept)</div>
+            
+            <div class="bg-zinc-900 border border-zinc-700 rounded-3xl p-8">
+                <div class="mb-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <div class="font-semibold text-xl">Your AI-Powered Home Screen</div>
+                            <div class="text-sm text-zinc-400">Pin web apps and let your local AI interact with them securely.</div>
+                        </div>
+                        <button onclick="showAddAppModal()" 
+                                class="text-sm px-4 py-2 bg-emerald-400 text-zinc-950 rounded-2xl flex items-center gap-x-2 font-medium">
+                            <i class="fa-solid fa-plus"></i>
+                            <span>Add App</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Pinned Apps Grid -->
+                <div id="pinned-apps" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                    <!-- Populated by JS -->
+                </div>
+
+                <!-- Grok / AI Bridge Demo -->
+                <div class="mt-8 pt-8 border-t border-zinc-700">
+                    <div class="flex flex-col md:flex-row md:items-center gap-6">
+                        <div class="flex-1">
+                            <div class="flex items-center gap-x-3 mb-2">
+                                <i class="fa-solid fa-robot text-emerald-400 text-2xl"></i>
+                                <div class="font-semibold">AI Browser Bridge</div>
+                            </div>
+                            <p class="text-sm text-zinc-400">Demonstration of secure, one-service-at-a-time AI control over browser tabs.</p>
+                        </div>
+                        <button onclick="simulateAIBridge()"
+                                class="px-6 py-3 bg-emerald-400 hover:bg-emerald-300 transition-colors text-zinc-950 font-semibold rounded-3xl text-sm flex items-center gap-x-2">
+                            <span>Simulate AI Bridge</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center text-xs text-zinc-500">
+            This is a conceptual demo of how Nexus AI + a minimal browser home could work together.
+        </div>
+
+    </div>
+
+    <!-- Add App Modal -->
+    <div id="add-app-modal" onclick="if (event.target.id === 'add-app-modal') hideAddAppModal()" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-[100]">
+        <div onclick="event.stopImmediatePropagation()" class="bg-zinc-900 border border-zinc-700 rounded-3xl w-full max-w-md mx-4 p-6">
+            <h3 class="font-semibold text-xl mb-4">Add Web App</h3>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="text-xs text-zinc-400 block mb-1.5">App Name</label>
+                    <input id="app-name" type="text" value="Grok" class="w-full bg-zinc-950 border border-zinc-700 rounded-2xl px-4 py-3 text-sm">
+                </div>
+                <div>
+                    <label class="text-xs text-zinc-400 block mb-1.5">URL</label>
+                    <input id="app-url" type="text" value="https://grok.x.ai" class="w-full bg-zinc-950 border border-zinc-700 rounded-2xl px-4 py-3 text-sm">
+                </div>
+            </div>
+            
+            <div class="flex gap-3 mt-6">
+                <button onclick="hideAddAppModal()" class="flex-1 py-3 rounded-2xl border border-zinc-700 hover:bg-zinc-800 transition-colors">Cancel</button>
+                <button onclick="addNewApp()" class="flex-1 py-3 bg-emerald-400 text-zinc-950 font-semibold rounded-2xl hover:bg-emerald-300 transition-colors">Add App</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let pinnedApps = JSON.parse(localStorage.getItem('nexus_pinned_apps')) || [
+            { id: 1, name: "Grok", url: "https://grok.x.ai", icon: "fa-robot" },
+            { id: 2, name: "3XB", url: "https://earthenwarecomputer.com", icon: "fa-tags" },
+            { id: 3, name: "xAI", url: "https://x.ai", icon: "fa-brain" }
+        ];
+
+        function savePinnedApps() {
+            localStorage.setItem('nexus_pinned_apps', JSON.stringify(pinnedApps));
+        }
+
+        function renderPinnedApps() {
+            const container = document.getElementById('pinned-apps');
+            container.innerHTML = '';
+
+            pinnedApps.forEach(app => {
+                const tile = document.createElement('div');
+                tile.className = `app-tile bg-zinc-800 border border-zinc-700 hover:border-zinc-500 rounded-3xl p-5 flex flex-col items-center text-center cursor-pointer`;
+                
+                tile.innerHTML = `
+                    <div class="w-12 h-12 bg-zinc-700 rounded-2xl flex items-center justify-center mb-3">
+                        <i class="fa-solid ${app.icon} text-2xl text-emerald-400"></i>
+                    </div>
+                    <div class="font-medium text-sm">${app.name}</div>
+                `;
+
+                tile.onclick = () => window.open(app.url, '_blank');
+                tile.oncontextmenu = (e) => {
+                    e.preventDefault();
+                    if (confirm(`Remove ${app.name}?`)) {
+                        pinnedApps = pinnedApps.filter(a => a.id !== app.id);
+                        savePinnedApps();
+                        renderPinnedApps();
+                    }
+                };
+
+                container.appendChild(tile);
+            });
+        }
+
+        function showAddAppModal() {
+            document.getElementById('add-app-modal').classList.remove('hidden');
+            document.getElementById('add-app-modal').classList.add('flex');
+        }
+
+        function hideAddAppModal() {
+            document.getElementById('add-app-modal').classList.remove('flex');
+            document.getElementById('add-app-modal').classList.add('hidden');
+        }
+
+        function addNewApp() {
+            const name = document.getElementById('app-name').value.trim();
+            const url = document.getElementById('app-url').value.trim();
+
+            if (!name || !url) return alert('Please enter name and URL');
+
+            pinnedApps.push({ id: Date.now(), name, url, icon: 'fa-globe' });
+            savePinnedApps();
+            renderPinnedApps();
+            hideAddAppModal();
+        }
+
+        function simulateAIBridge() {
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 bg-black/80 flex items-center justify-center z-[200]';
+            modal.innerHTML = `
+                <div class="bg-zinc-900 border border-zinc-700 rounded-3xl max-w-md w-full mx-4 p-8">
+                    <div class="text-center">
+                        <i class="fa-solid fa-robot text-emerald-400 text-5xl mb-6"></i>
+                        <h3 class="text-2xl font-semibold mb-3">AI Bridge Activated</h3>
+                        <p class="text-zinc-400 mb-6 text-sm">In a real implementation, your local AI would now have controlled access to this browser session through Nexus AI.</p>
+                        
+                        <button onclick="this.closest('.fixed').remove()" 
+                                class="w-full py-3 bg-emerald-400 text-zinc-950 font-semibold rounded-3xl">
+                            Close Demo
+                        </button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+
+        function init() {
+            renderPinnedApps();
+        }
+
+        window.onload = init;
+    </script>
 </body>
 </html>
