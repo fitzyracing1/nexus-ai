@@ -3,7 +3,24 @@
 Lets any local AI (Claude Code, curl, scripts) drive your real Chrome tabs —
 click, type, fill forms, read page content, screenshot, navigate.
 
-## Live demo
+## Sandbox (zero install)
+
+**https://fitzyracing1.github.io/nexus-ai/sandbox/** — a browser *inside* the
+webpage, with the bridge "extension" built in. Nothing to install: the window
+has an address bar, tabs, back/forward, and a set of real demo sites, and an AI
+console drives them for real — clicking buttons, filling forms, reading text,
+navigating, screenshotting. There's also an autonomous-task runner that chains
+commands ("buy the headphones", "fill & submit the sign-in form").
+
+It works because the sandbox pages are served from the same origin, so
+in-page JavaScript can script them directly. The agent (`sandbox/agent.js`) is
+the **same action logic that ships in `extension/content.js`** — the same
+`text=` / `text~=` / CSS selector engine, the same synthetic mouse/keyboard
+events, the same controlled-input setter. The real extension does the identical
+thing to *any* tab; it just reaches it through the local bridge instead of an
+iframe. Use the sandbox to see exactly what the bridge can do before installing.
+
+## Live demo (real bridge)
 
 **https://fitzyracing1.github.io/nexus-ai/** — a real, working demo (not a
 mock). Open it in an extensions-capable Chromium browser (Chrome, Edge, Brave)

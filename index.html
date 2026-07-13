@@ -59,13 +59,18 @@
             </h1>
             <p class="text-xl md:text-2xl text-zinc-400 max-w-2xl">
                 Nexus AI is a local bridge + Chrome extension that lets your AI securely control real Chrome tabs.
-                The panel below is a <span class="text-zinc-200 font-medium">real, live demo</span> — it drives
-                <em>this very page</em> through your bridge.
+                Try the <span class="text-zinc-200 font-medium">zero-install sandbox</span> below — a browser inside
+                your browser with the bridge built in — or run the <span class="text-zinc-200 font-medium">live demo</span>
+                against your own bridge.
             </p>
-            <div class="flex gap-4 mt-8">
+            <div class="flex flex-wrap gap-4 mt-8">
+                <a href="sandbox/index.html"
+                   class="px-8 py-4 bg-emerald-400 text-zinc-950 font-semibold rounded-3xl flex items-center gap-x-3 hover:bg-emerald-300 transition-all">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i> Open the Sandbox — no install
+                </a>
                 <button onclick="document.getElementById('demo-section').scrollIntoView({ behavior: 'smooth' })"
                         class="px-8 py-4 bg-white text-zinc-950 font-semibold rounded-3xl flex items-center gap-x-3 hover:bg-zinc-100 transition-all">
-                    <i class="fa-solid fa-bolt"></i> Try the Live Demo
+                    <i class="fa-solid fa-bolt"></i> Live Demo
                 </button>
                 <a href="https://github.com/fitzyracing1/nexus-ai#one-time-setup" target="_blank" rel="noopener"
                    class="px-8 py-4 border border-zinc-700 hover:bg-zinc-900 rounded-3xl flex items-center gap-x-3 transition-all">
@@ -77,6 +82,12 @@
         <!-- ============ LIVE BRIDGE DEMO ============ -->
         <div id="demo-section" class="mb-16">
             <div class="section-title mb-4 px-1">Live Bridge Demo</div>
+
+            <a href="sandbox/index.html"
+               class="flex items-center gap-x-3 mb-4 px-5 py-3 rounded-2xl bg-emerald-400/10 border border-emerald-400/30 text-emerald-300 hover:bg-emerald-400/20 transition-colors text-sm">
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                <span>Don't want to install anything? <span class="font-semibold underline">Open the zero-install Sandbox</span> — a browser-in-your-browser with the bridge built in.</span>
+            </a>
 
             <div class="bg-zinc-900 border border-zinc-700 rounded-3xl p-6 md:p-8">
 

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NexusFind</title>
+<style>
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+         background:#0b0f19; color:#e4e4e7; padding:40px 24px; }
+  .wrap { max-width:640px; margin:0 auto; }
+  .brand { font-size:30px; font-weight:700; letter-spacing:-1px; margin-bottom:20px; }
+  .brand b { color:#34d399; }
+  form { display:flex; gap:10px; margin-bottom:28px; }
+  #q { flex:1; padding:13px 16px; border-radius:12px; border:1px solid #253049;
+       background:#12182a; color:#e4e4e7; font-size:15px; }
+  #q:focus { outline:2px solid #34d399; border-color:#34d399; }
+  button { padding:13px 20px; border:0; border-radius:12px; background:#34d399;
+           color:#08130d; font-weight:600; font-size:15px; cursor:pointer; }
+  .result { padding:16px 0; border-top:1px solid #1c2438; }
+  .result .t { color:#8ab4ff; font-size:17px; margin:0 0 4px; }
+  .result .u { color:#4ea87b; font-size:12px; margin:0 0 6px; }
+  .result .d { color:#a9b0bd; font-size:14px; margin:0; }
+  .empty { color:#6b7280; }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="brand">Nexus<b>Find</b></div>
+    <form method="get" action="search.html">
+      <input id="q" name="q" placeholder="Search the demo web…" autocomplete="off">
+      <button type="submit">Search</button>
+    </form>
+    <div id="results"></div>
+  </div>
+  <script>
+    var params = new URLSearchParams(location.search);
+    var q = params.get('q') || '';
+    var input = document.getElementById('q');
+    input.value = q;
+    var out = document.getElementById('results');
+    if (q) {
+      var items = [
+        { t: q + ' — the definitive guide', u: 'nexus://find/guide', d: 'Everything you wanted to know about ' + q + ', explained simply.' },
+        { t: 'Best ' + q + ' of 2026', u: 'nexus://find/best', d: 'Our editors ranked the top picks for ' + q + ' this year.' },
+        { t: q + ' on Nexus Store', u: 'nexus://store', d: 'Shop ' + q + ' with free same-day delivery. In stock now.' }
+      ];
+      out.innerHTML = items.map(function (it) {
+        return '<div class="result"><p class="t">' + it.t + '</p><p class="u">' + it.u + '</p><p class="d">' + it.d + '</p></div>';
+      }).join('');
+    } else {
+      out.innerHTML = '<p class="empty">Type a query and press Search. An AI agent can fill this box and submit for you.</p>';
+    }
+  </script>
+</body>
+</html>
