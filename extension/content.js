@@ -11,6 +11,20 @@ if (!window.__aiBrowserContentRegistered) {
     return true; // async
   });
 
+  // -------- page-facing presence handshake --------
+  // Lets a webpage detect that the extension is installed WITHOUT giving the
+  // page any ability to drive it. Real actions still go through the
+  // authenticated localhost bridge — this only ever answers "I'm here".
+  const BRIDGE_VERSION = "0.1.0";
+  try { document.documentElement.setAttribute("data-nexus-bridge", BRIDGE_VERSION); } catch (_) {}
+  window.addEventListener("message", (ev) => {
+    if (ev.source !== window) return;
+    const d = ev.data;
+    if (d && d.__nexusBridge === "ping") {
+      window.postMessage({ __nexusBridge: "pong", version: BRIDGE_VERSION }, "*");
+    }
+  });
+
   async function handle(msg) {
     const { action, args = {} } = msg;
     try {

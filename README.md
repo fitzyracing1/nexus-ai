@@ -3,6 +3,27 @@
 Lets any local AI (Claude Code, curl, scripts) drive your real Chrome tabs —
 click, type, fill forms, read page content, screenshot, navigate.
 
+## Live demo
+
+**https://fitzyracing1.github.io/nexus-ai/** — a real, working demo (not a
+mock). Open it in an extensions-capable Chromium browser (Chrome, Edge, Brave)
+and it drives *that very page* through your local bridge:
+
+1. Start `bridge.py` and install the extension (see [setup](#one-time-setup)).
+2. Open the demo page and paste your bridge auth token (from
+   `http://127.0.0.1:17777/setup`) into the token box.
+3. The three status boxes should turn green (browser ✓, extension ✓, bridge ✓).
+4. Click **Read URL**, **Type into the box**, **Click the counter**, or
+   **Screenshot** — each POSTs a genuine command to `127.0.0.1:17777`, which the
+   extension executes on the active tab (the demo page itself).
+
+The page talks to the bridge directly over localhost: Chromium exempts
+`http://127.0.0.1` from mixed-content blocking, and the bridge already sends
+permissive CORS headers, so an HTTPS GitHub Pages site can reach it. The
+extension only exposes a presence handshake to pages (so the demo can show
+"extension installed") — all real actions still go through the token-protected
+bridge, so a random website can't drive your browser.
+
 ## Pieces
 
 ```
