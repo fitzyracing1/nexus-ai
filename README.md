@@ -139,3 +139,11 @@ GET  http://127.0.0.1:17777/status
 - Service worker keepalive uses `chrome.alarms`. The long-poll itself also
   counts as active work, so the SW stays alive while a poll is in flight.
 - Commands without an active tab error out fast — you'll see "no active tab".
+
+## Plans
+
+This project is free, and its license stays as is. Support it through [GitHub Sponsors](https://github.com/sponsors/fitzyracing1):
+
+- **Free**: use the code, community support.
+- **Pro ($49/month)**: priority issues and support.
+- **Team ($199/month)**: priority support for your team plus early access.
