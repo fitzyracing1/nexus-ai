@@ -20,3 +20,9 @@ config.json
 Thumbs.db
 .idea/
 .vscode/
+
+# License server local database
+*.sqlite
+*.sqlite-journal
+license_server/data/*.sqlite
+license_server/.env

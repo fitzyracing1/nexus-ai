@@ -15,7 +15,7 @@ if (!window.__aiBrowserContentRegistered) {
   // Lets a webpage detect that the extension is installed WITHOUT giving the
   // page any ability to drive it. Real actions still go through the
   // authenticated localhost bridge — this only ever answers "I'm here".
-  const BRIDGE_VERSION = "0.1.0";
+  const BRIDGE_VERSION = "0.2.0";
   try { document.documentElement.setAttribute("data-nexus-bridge", BRIDGE_VERSION); } catch (_) {}
   window.addEventListener("message", (ev) => {
     if (ev.source !== window) return;
@@ -24,6 +24,15 @@ if (!window.__aiBrowserContentRegistered) {
       window.postMessage({ __nexusBridge: "pong", version: BRIDGE_VERSION }, "*");
     }
   });
+
+
+  try {
+    const key = new URLSearchParams(location.search).get("nexus_license");
+    if (key) {
+      chrome.runtime.sendMessage({ type: "activate_license", key });
+    }
+  } catch (_) {}
+
 
   async function handle(msg) {
     const { action, args = {} } = msg;

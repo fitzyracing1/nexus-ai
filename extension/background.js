@@ -1,3 +1,5 @@
+importScripts("license.js", "license-config.js");
+
 // Service worker: polls the local bridge for commands, dispatches to the
 // active tab's content script, returns results.
 //
@@ -7,6 +9,218 @@
 
 const BRIDGE = "http://127.0.0.1:17777";
 const POLL_TIMEOUT_MS = 7000;  // matches bridge's 5s long-poll + 2s headroom
+
+
+// ----- paid license / 7-day trial -----
+const LICENSE_REFRESH_MINUTES = 360; // 6 hours
+const LICENSE_STORAGE_KEYS = [
+  "trialStartedAt",
+  "installId",
+  "license_key",
+  "license_status",
+  "license_period_end",
+  "license_trial_end",
+  "license_verified_at",
+  "license_server_url",
+];
+
+function licenseServerUrlFrom(stored) {
+  const override = (stored || "").trim();
+  if (override) return override.replace(/\/$/, "");
+  const fallback = (typeof NEXUS_LICENSE_SERVER_URL === "string" && NEXUS_LICENSE_SERVER_URL) ||
+    NexusLicense.DEFAULT_SERVER_URL;
+  return String(fallback).replace(/\/$/, "");
+}
+
+async function loadLicenseState() {
+  const stored = await chrome.storage.local.get(LICENSE_STORAGE_KEYS);
+  let trialStartedAt = stored.trialStartedAt;
+  let installId = stored.installId;
+  if (!trialStartedAt || !installId) {
+    try {
+      const synced = await chrome.storage.sync.get(["trialStartedAt", "installId"]);
+      if (!trialStartedAt && synced.trialStartedAt) trialStartedAt = synced.trialStartedAt;
+      if (!installId && synced.installId) installId = synced.installId;
+    } catch (_) {}
+  }
+  const ensured = NexusLicense.ensureTrial(
+    { trialStartedAt, installId },
+    Date.now()
+  );
+  if (ensured.trialStartedAt !== stored.trialStartedAt || ensured.installId !== stored.installId) {
+    await chrome.storage.local.set({
+      trialStartedAt: ensured.trialStartedAt,
+      installId: ensured.installId,
+    });
+    try {
+      await chrome.storage.sync.set({
+        trialStartedAt: ensured.trialStartedAt,
+        installId: ensured.installId,
+      });
+    } catch (_) {}
+  }
+  return {
+    trialStartedAt: ensured.trialStartedAt,
+    installId: ensured.installId,
+    serverUrl: licenseServerUrlFrom(stored.license_server_url),
+    license: {
+      key: stored.license_key || "",
+      status: stored.license_status || "none",
+      currentPeriodEnd: stored.license_period_end ? Number(stored.license_period_end) * 1000 : 0,
+      trialEnd: stored.license_trial_end ? Number(stored.license_trial_end) * 1000 : 0,
+      lastVerifiedAt: stored.license_verified_at || 0,
+    },
+  };
+}
+
+function currentEntitlement(state) {
+  return NexusLicense.evaluateEntitlement(state, Date.now());
+}
+
+async function requireEntitlement() {
+  const state = await loadLicenseState();
+  const ent = currentEntitlement(state);
+  if (ent.allowed) return { ok: true, ent, state };
+  return { ok: false, ent, state };
+}
+
+async function persistVerifiedLicense(key, payload) {
+  const status = payload.status || "none";
+  await chrome.storage.local.set({
+    license_key: key,
+    license_status: status,
+    license_period_end: payload.current_period_end || 0,
+    license_trial_end: payload.trial_end || 0,
+    license_verified_at: Date.now(),
+  });
+}
+
+function isTrustedLicenseSender(sender) {
+  const url = (sender && (sender.url || (sender.tab && sender.tab.url))) || "";
+  const extOrigin = `chrome-extension://${chrome.runtime.id}/`;
+  if (url.startsWith(extOrigin)) return true;
+  if (url.startsWith("https://fitzyracing1.github.io/nexus-ai")) return true;
+  if (url.startsWith("http://127.0.0.1:8787/")) return true;
+  return false;
+}
+
+async function verifyLicenseWithServer(state) {
+  const key = state.license && state.license.key;
+  if (!key || !NexusLicense.isValidLicenseKey(key)) return state;
+  try {
+    const resp = await fetch(`${state.serverUrl}/v1/license/verify`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ license_key: NexusLicense.normalizeKey(key), install_id: state.installId }),
+    });
+    const data = await resp.json().catch(() => ({}));
+    if (resp.ok && data && data.ok) {
+      await persistVerifiedLicense(NexusLicense.normalizeKey(key), data);
+    }
+  } catch (_) {
+    // Offline: entitlement may still use the last verified cache + grace window.
+  }
+  return loadLicenseState();
+}
+
+async function startCheckout() {
+  const state = await loadLicenseState();
+  const resp = await fetch(`${state.serverUrl}/v1/checkout`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      install_id: state.installId,
+      trial_started_at: state.trialStartedAt,
+    }),
+  });
+  const data = await resp.json().catch(() => ({}));
+  if (!resp.ok || !data.url) {
+    throw new Error(data.error || `checkout failed (${resp.status})`);
+  }
+  await chrome.storage.local.set({ checkout_session_id: data.session_id || "" });
+  await chrome.tabs.create({ url: data.url });
+  if (data.session_id) pollCheckoutSession(state.serverUrl, data.session_id);
+  return { ok: true, session_id: data.session_id };
+}
+
+function pollCheckoutSession(serverUrl, sessionId) {
+  let attempts = 0;
+  const tick = async () => {
+    attempts += 1;
+    try {
+      const resp = await fetch(`${serverUrl}/v1/checkout/${encodeURIComponent(sessionId)}`);
+      const data = await resp.json().catch(() => ({}));
+      if (data && data.license_key) {
+        await persistVerifiedLicense(data.license_key, data);
+        await appendLog({ kind: "license", error: "license activated" });
+        return;
+      }
+    } catch (_) {}
+    if (attempts < 30) setTimeout(tick, 2000);
+  };
+  setTimeout(tick, 2000);
+}
+
+async function activateLicenseKey(rawKey) {
+  const key = NexusLicense.normalizeKey(rawKey);
+  if (!NexusLicense.isValidLicenseKey(key)) {
+    return { ok: false, error: "That does not look like a Nexus AI license key." };
+  }
+  const state = await loadLicenseState();
+  try {
+    const resp = await fetch(`${state.serverUrl}/v1/license/verify`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ license_key: key, install_id: state.installId }),
+    });
+    const data = await resp.json().catch(() => ({}));
+    if (!resp.ok || !data.ok) {
+      return { ok: false, error: data.error || "License could not be verified." };
+    }
+    await persistVerifiedLicense(key, data);
+    return { ok: true, status: data.status };
+  } catch (e) {
+    return { ok: false, error: "Could not reach the license server. Is it running?" };
+  }
+}
+
+async function openBillingPortal() {
+  const state = await loadLicenseState();
+  const key = state.license && state.license.key;
+  if (!key) throw new Error("No license key saved yet.");
+  const resp = await fetch(`${state.serverUrl}/v1/portal`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ license_key: NexusLicense.normalizeKey(key) }),
+  });
+  const data = await resp.json().catch(() => ({}));
+  if (!resp.ok || !data.url) throw new Error(data.error || "Could not open billing portal");
+  await chrome.tabs.create({ url: data.url });
+  return { ok: true };
+}
+
+async function licenseSnapshot() {
+  let state = await loadLicenseState();
+  if (state.license && state.license.key) {
+    state = await verifyLicenseWithServer(state);
+  }
+  const ent = currentEntitlement(state);
+  return {
+    ok: true,
+    allowed: ent.allowed,
+    source: ent.source,
+    status: ent.status,
+    message: ent.message,
+    trialRemainingMs: ent.trialRemainingMs,
+    trialRemainingLabel: NexusLicense.formatRemaining(ent.trialRemainingMs),
+    licenseKeyMasked: state.license && state.license.key
+      ? `${state.license.key.slice(0, 10)}…${state.license.key.slice(-4)}`
+      : "",
+    hasLicense: !!(state.license && state.license.key),
+    serverUrl: state.serverUrl,
+  };
+}
+
 
 let connected = false;
 let stopRequested = false;
@@ -145,6 +359,11 @@ async function handleCommand(cmd, token) {
   const { request_id, action, args = {} } = cmd;
   await appendLog({ kind: "command", action, args });
   try {
+    const gate = await requireEntitlement();
+    if (!gate.ok) {
+      await postResult(request_id, false, null, gate.ent.message, token);
+      return;
+    }
     if (action === "navigate") {
       const tab = await getActiveTab();
       if (!tab) throw new Error("no active tab");
@@ -210,9 +429,13 @@ async function postResult(request_id, ok, result, error, token) {
 // Keep the service worker alive: alarm fires every ~30s, wakes the SW,
 // and (if no loop is running because SW was just restarted) re-arms the loop.
 chrome.alarms.create("keepalive", { periodInMinutes: 0.5 });
+chrome.alarms.create("license-refresh", { periodInMinutes: LICENSE_REFRESH_MINUTES });
 chrome.alarms.onAlarm.addListener((a) => {
   if (a.name === "keepalive" && !loopRunning && !stopRequested) {
     pollLoop();
+  }
+  if (a.name === "license-refresh") {
+    loadLicenseState().then(verifyLicenseWithServer).catch(() => {});
   }
 });
 
@@ -236,6 +459,30 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
     } else if (msg.type === "get_log") {
       const { log = [] } = await chrome.storage.local.get("log");
       sendResponse({ log });
+    } else if (msg.type === "get_license") {
+      sendResponse(await licenseSnapshot());
+    } else if (msg.type === "start_checkout") {
+      try {
+        sendResponse(await startCheckout());
+      } catch (e) {
+        sendResponse({ ok: false, error: String(e && e.message || e) });
+      }
+    } else if (msg.type === "activate_license") {
+      if (!isTrustedLicenseSender(_sender)) {
+        sendResponse({ ok: false, error: "untrusted sender" });
+        return;
+      }
+      sendResponse(await activateLicenseKey(msg.key || ""));
+    } else if (msg.type === "open_portal") {
+      try {
+        sendResponse(await openBillingPortal());
+      } catch (e) {
+        sendResponse({ ok: false, error: String(e && e.message || e) });
+      }
+    } else if (msg.type === "set_license_server_url") {
+      const url = String(msg.url || "").trim();
+      await chrome.storage.local.set({ license_server_url: url });
+      sendResponse({ ok: true });
     } else {
       sendResponse({ ok: false, error: "unknown message" });
     }
@@ -243,7 +490,8 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
   return true;
 });
 
-chrome.runtime.onInstalled.addListener(() => { stopRequested = false; pollLoop(); });
+chrome.runtime.onInstalled.addListener(() => { stopRequested = false; loadLicenseState().catch(() => {}); pollLoop(); });
 chrome.runtime.onStartup.addListener(() => { stopRequested = false; pollLoop(); });
 stopRequested = false;
+loadLicenseState().catch(() => {});
 pollLoop();
