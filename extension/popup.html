@@ -2,42 +2,69 @@
 <html>
 <head>
   <meta charset="utf-8" />
-  <title>AI Browser Bridge</title>
+  <title>Nexus AI</title>
   <style>
-    body { font-family: -apple-system, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 14px; width: 340px; background: #0f172a; color: #e2e8f0; }
-    h1 { font-size: 14px; margin: 0 0 10px; font-weight: 600; }
+    body { font-family: Inter, -apple-system, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 14px; width: 340px; background: #09090b; color: #e4e4e7; }
+    .brand { display: flex; align-items: center; gap: 8px; margin: 0 0 10px; }
+    .brand img { width: 24px; height: 24px; border-radius: 6px; display: block; }
+    h1 { font-size: 14px; margin: 0; font-weight: 600; letter-spacing: -0.3px; }
     .status { padding: 8px 10px; border-radius: 8px; font-size: 13px; font-weight: 600; }
-    .ok  { background: #14532d; color: #bbf7d0; }
-    .bad { background: #7f1d1d; color: #fecaca; }
-    .mid { background: #713f12; color: #fde68a; }
-    label { display: block; font-size: 11px; margin-top: 10px; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; }
-    input { width: 100%; box-sizing: border-box; padding: 7px 8px; border-radius: 6px; border: 1px solid #334155; background: #0b1220; color: #e2e8f0; font-family: ui-monospace, Consolas, monospace; font-size: 12px; }
+    .ok  { background: rgba(52, 211, 153, 0.12); color: #6ee7b7; }
+    .bad { background: rgba(248, 113, 113, 0.12); color: #fca5a5; }
+    .mid { background: rgba(251, 191, 36, 0.12); color: #fde68a; }
+    label { display: block; font-size: 11px; margin-top: 10px; color: #71717a; text-transform: uppercase; letter-spacing: 0.5px; }
+    input { width: 100%; box-sizing: border-box; padding: 7px 8px; border-radius: 6px; border: 1px solid #27272a; background: #18181b; color: #e4e4e7; font-family: "JetBrains Mono", ui-monospace, Consolas, monospace; font-size: 12px; }
     .row { display: flex; gap: 6px; margin-top: 10px; }
-    button { flex: 1; padding: 8px 10px; border: 0; border-radius: 6px; background: #1e293b; color: #e2e8f0; cursor: pointer; font-size: 13px; }
-    button:hover { background: #334155; }
-    button.primary { background: #2563eb; }
-    button.primary:hover { background: #1d4ed8; }
-    .log { margin-top: 12px; max-height: 180px; overflow-y: auto; background: #020617; border: 1px solid #1e293b; border-radius: 6px; padding: 6px; font-family: ui-monospace, Consolas, monospace; font-size: 11px; }
-    .log .entry { padding: 3px 4px; border-bottom: 1px solid #0f172a; }
+    button { flex: 1; padding: 8px 10px; border: 0; border-radius: 6px; background: #18181b; color: #e4e4e7; cursor: pointer; font-size: 13px; }
+    button:hover { background: #27272a; }
+    button.primary { background: #34d399; color: #09090b; font-weight: 600; }
+    button.primary:hover { background: #6ee7b7; }
+    .log { margin-top: 12px; max-height: 180px; overflow-y: auto; background: #000; border: 1px solid #27272a; border-radius: 6px; padding: 6px; font-family: "JetBrains Mono", ui-monospace, Consolas, monospace; font-size: 11px; }
+    .log .entry { padding: 3px 4px; border-bottom: 1px solid #09090b; }
     .log .entry:last-child { border-bottom: 0; }
     .entry.err { color: #fca5a5; }
     .entry.ok  { color: #86efac; }
-    .meta { color: #64748b; font-size: 11px; margin-top: 8px; }
-    code { background: #1e293b; padding: 1px 4px; border-radius: 3px; }
+    .meta { color: #71717a; font-size: 11px; margin-top: 8px; line-height: 1.45; }
+    .license { margin-top: 12px; padding: 10px; border: 1px solid #27272a; border-radius: 8px; background: #0c0c0e; }
+    .license h2 { margin: 0 0 6px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #71717a; font-weight: 600; }
+    .license .note { font-size: 12px; color: #d4d4d8; margin: 0 0 8px; line-height: 1.45; }
+    .license .note.bad { color: #fca5a5; }
+    .row.single button { width: 100%; }
+    a.privacy { color: #34d399; text-decoration: none; }
+    a.privacy:hover { text-decoration: underline; }
+    code { background: #18181b; padding: 1px 4px; border-radius: 3px; color: #a1a1aa; }
   </style>
 </head>
 <body>
-  <h1>AI Browser Bridge</h1>
+  <div class="brand">
+    <img src="icons/icon32.png" width="24" height="24" alt="">
+    <h1>Nexus AI</h1>
+  </div>
   <div id="status" class="status mid">checking…</div>
 
   <label for="tokenInput">Auth token</label>
-  <input id="tokenInput" type="text" placeholder="paste from bridge startup output" autocomplete="off" spellcheck="false" />
+  <input id="tokenInput" type="text" placeholder="paste from bridge.py startup output" autocomplete="off" spellcheck="false" />
   <div class="row">
     <button id="saveTokenBtn" class="primary">Save token</button>
     <button id="reconnectBtn">Reconnect</button>
   </div>
 
-  <div class="meta">Bridge: <code>127.0.0.1:17777</code></div>
+
+  <div class="license" id="licenseBox">
+    <h2>Subscription</h2>
+    <p class="note" id="licenseNote">checking trial…</p>
+    <div class="row" id="licenseActions">
+      <button id="subscribeBtn" class="primary">Subscribe — $5/month</button>
+      <button id="portalBtn">Manage billing</button>
+    </div>
+    <label for="licenseInput">License key</label>
+    <input id="licenseInput" type="text" placeholder="NEXUS-XXXX-XXXX-XXXX" autocomplete="off" spellcheck="false" />
+    <div class="row">
+      <button id="activateBtn">Activate key</button>
+    </div>
+  </div>
+
+  <div class="meta">Requires local <code>bridge.py</code> at <code>127.0.0.1:17777</code>. The extension does not run an AI by itself. 7-day free trial, then $5/month via Stripe (not the Chrome Web Store). <a class="privacy" href="https://fitzyracing1.github.io/nexus-ai/privacy.html" target="_blank" rel="noopener">Privacy</a></div>
   <div class="log" id="log"></div>
   <script src="popup.js"></script>
 </body>

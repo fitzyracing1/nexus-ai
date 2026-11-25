@@ -22,10 +22,10 @@
 <main>
   <h1>Privacy Policy for Nexus AI</h1>
   <p class="meta">
-    <strong>Effective date:</strong> November 24, 2026<br>
+    <strong>Effective date:</strong> November 25, 2026<br>
     <strong>Contact:</strong> <a href="mailto:Fitzyracing1@gmail.com">Fitzyracing1@gmail.com</a>
   </p>
-  <p>This policy describes how the Nexus AI Chrome extension (“the extension”) handles information. Nexus AI is a Chrome extension (version 0.1.1 and later) that connects a user-run local program, <code>bridge.py</code>, to the current browser tab.</p>
+  <p>This policy describes how the Nexus AI Chrome extension (“the extension”) handles information. Nexus AI is a Chrome extension (version 0.2.0 and later) that connects a user-run local program, <code>bridge.py</code>, to the current browser tab. Starting with version 0.2.0, the extension also offers a 7-day free trial and an optional $5/month subscription processed by Stripe, not by the Chrome Web Store.</p>
 
   <h2>1. What Nexus AI is</h2>
   <p>Nexus AI is a local browser bridge. It does not provide a chatbot, a cloud AI, or an account. After you install it, you run <code>bridge.py</code> on the same computer. The extension polls that local program at <code>http://127.0.0.1:17777</code> and, when you have connected with a token, carries out commands such as click, type, read, screenshot, and navigation on the current tab.</p>
@@ -33,11 +33,13 @@
 
   <h2>2. Who is responsible</h2>
   <p>The extension is published by Joshua Almeida. For privacy questions, email <a href="mailto:Fitzyracing1@gmail.com">Fitzyracing1@gmail.com</a>.</p>
-  <p>The developer does not operate a backend that receives your browsing data. The only program the extension talks to is the <code>bridge.py</code> process you run yourself.</p>
+  <p>The developer does not operate a backend that receives your browsing data. Page content, screenshots, tokens, and tab lists are sent only to the <code>bridge.py</code> process you run yourself.</p>
+  <p>When you subscribe (or when the extension checks a license key you entered), the extension also talks to a license server operated for Nexus AI and to Stripe’s checkout and billing pages. That path carries subscription data only, not browsing data. See section 3.5.</p>
 
   <h2>3. Information the extension handles</h2>
   <h3>3.1 Information you provide</h3>
   <p><strong>Bridge auth token.</strong> You paste this into the extension popup. It is stored in Chrome’s local extension storage (<code>chrome.storage.local</code>) on your computer so the extension can authenticate to <code>bridge.py</code>. It is not synced and is not sent anywhere except to <code>http://127.0.0.1:17777</code>.</p>
+  <p><strong>License key.</strong> If you subscribe, you receive a Nexus AI license key. You may paste it into the popup, or the official site may pass it to the extension after checkout. It is stored in <code>chrome.storage.local</code> and is sent only to the license server to check subscription status, and to Stripe’s Customer Portal when you choose “Manage billing.”</p>
   <h3>3.2 Information read from the browser when you use the bridge</h3>
   <p>Only after you connect, and only when <code>bridge.py</code> issues a command, the extension may collect and return to <code>bridge.py</code>:</p>
   <ul>
@@ -48,9 +50,19 @@
   </ul>
   <p>This may include whatever happens to be on the page, such as form fields. The extension does not try to extract passwords, payment details, or personal data as a separate feature, but if those appear in the page (or in a screenshot) and a command reads that page, they would be included in what is sent to your local <code>bridge.py</code>.</p>
   <h3>3.3 Status and logs kept on your device</h3>
-  <p>The extension stores connection status and a short recent-command log (about the last 50 entries) in <code>chrome.storage.local</code> so the popup can show them. These stay on your computer.</p>
+  <p>The extension stores connection status and a short recent-command log (about the last 50 entries) in <code>chrome.storage.local</code> so the popup can show them. It also stores the start time of your 7-day free trial and a random install identifier, in local storage and, when Chrome sync is available, in <code>chrome.storage.sync</code> so a reinstall on the same Chrome profile can keep the same trial window. These values are not browsing data.</p>
   <h3>3.4 What the extension does not collect</h3>
-  <p>The extension does not create an account, does not use cookies for analytics or advertising, and does not send telemetry to the developer. It does not contact any internet host other than your local bridge at <code>127.0.0.1:17777</code>.</p>
+  <p>The extension does not use cookies for analytics or advertising, and does not send telemetry about the pages you visit. It does not send page content, screenshots, tokens, or tab lists to the developer or to Stripe.</p>
+  <h3>3.5 Subscriptions and payments</h3>
+  <p>If you start a paid subscription, Stripe collects the payment details you enter at Checkout (for example, card number, name, and email). Nexus AI does not see or store your full card number. The license server stores:</p>
+  <ul>
+    <li>Your email address, as provided to Stripe at Checkout</li>
+    <li>Stripe customer id and subscription id</li>
+    <li>Your license key and subscription status (for example, trialing, active, past due, or canceled)</li>
+    <li>Trial and current billing-period end times</li>
+    <li>The install identifier the extension sent when starting Checkout, if any</li>
+  </ul>
+  <p>Stripe’s own privacy policy applies to payment processing: <a href="https://stripe.com/privacy">https://stripe.com/privacy</a>. The developer uses Stripe as a payment processor, not as an advertising partner.</p>
 
   <h2>4. How the information is used</h2>
   <p>Information is used only to carry out the extension’s single purpose: letting your local <code>bridge.py</code> process drive or read the current tab at your request.</p>
@@ -59,19 +71,20 @@
   <h2>5. How the information is shared</h2>
   <ul>
     <li><strong>Your local <code>bridge.py</code> process.</strong> Command results are posted to <code>http://127.0.0.1:17777/result</code>. That program runs on your computer and is bound to localhost. What you (or a local AI you run) do with those results is under your control.</li>
-    <li><strong>The developer.</strong> Page content, tokens, screenshots, tab lists, and logs are not sent to Joshua Almeida, to Nexus AI servers, or to any other third-party server by the extension.</li>
+    <li><strong>The developer / license server.</strong> Page content, tokens, screenshots, tab lists, and command logs are not sent to Joshua Almeida or to the license server. The license server receives only the subscription information listed in section 3.5, so it can issue a license key and confirm that a subscription is still valid.</li>
+    <li><strong>Stripe.</strong> If you subscribe, payment and billing data is processed by Stripe. The extension may open Stripe Checkout or the Stripe Customer Portal in a browser tab.</li>
     <li><strong>Legal requests.</strong> Because the developer does not receive this data, there is nothing of this kind for the developer to disclose in response to a legal request. Chrome itself may handle data under Google’s policies when you use the Chrome Web Store or the browser.</li>
     <li><strong>Sale of data.</strong> User data is not sold.</li>
   </ul>
   <p>Anyone who can use your computer, or who can reach <code>127.0.0.1:17777</code> and knows your token, could drive the current tab or read command results. Keep the token private, and disconnect or stop <code>bridge.py</code> when you are not using it.</p>
 
   <h2>6. Remote code and network access</h2>
-  <p>All extension scripts are included in the Chrome Web Store package. The extension does not load or run remote code. Network access is used only to exchange JSON with <code>http://127.0.0.1:17777</code>.</p>
+  <p>All extension scripts are included in the Chrome Web Store package. The extension does not load or run remote code. Network access is used to exchange JSON with your local bridge at <code>http://127.0.0.1:17777</code>, and — for licensing only — with the Nexus AI license server and with Stripe.</p>
 
   <h2>7. Storage, retention, and deletion</h2>
   <ul>
-    <li>The token, connection status, and local log are stored by Chrome on your device until you clear the extension’s data, click to replace the token, or uninstall the extension.</li>
-    <li>Uninstalling the extension removes its <code>chrome.storage.local</code> data.</li>
+    <li>The token, connection status, local log, license key, and trial start time are stored by Chrome on your device until you clear the extension’s data, replace them, or uninstall the extension.</li>
+    <li>Uninstalling the extension removes its Chrome storage data on that profile. It does not automatically cancel a Stripe subscription or delete the license server’s billing record. Use “Manage billing” in the popup to cancel, or email <a href="mailto:Fitzyracing1@gmail.com">Fitzyracing1@gmail.com</a> to ask that subscription records (email, Stripe customer id, license key, status) be deleted.</li>
     <li>The extension does not keep a copy of page content after it has returned a command result to <code>bridge.py</code>, other than brief descriptions that may appear in the on-device log.</li>
   </ul>
 
@@ -79,7 +92,7 @@
   <p>The extension is not directed at children under 13, and the developer does not knowingly collect personal information from children.</p>
 
   <h2>9. International processing</h2>
-  <p>Because command data stays on your computer, it is not transferred by the extension to servers in other countries. If you later send that data somewhere else with your own tools, that is outside this policy.</p>
+  <p>Command data stays on your computer and is not transferred by the extension to servers in other countries. If you subscribe, Stripe and the license server may process subscription data in the countries where those services operate. If you later send command data somewhere else with your own tools, that is outside this policy.</p>
 
   <h2>10. Changes to this policy</h2>
   <p>If this policy changes, the updated text will be posted at the same URL, with a new effective date. Material changes will also be noted in the extension’s Chrome Web Store listing when a new version is submitted.</p>

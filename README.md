@@ -55,7 +55,8 @@ mode, "Load unpacked". **Kiwi Browser (Android)** — ⋮ → Extensions → loa
 
 ```
 bridge.py              tiny stdlib HTTP server on 127.0.0.1:17777
-extension/             Chrome MV3 extension (background + content script)
+extension/             Chrome MV3 extension (background + content script), v0.2.0
+license_server/        Stripe Checkout (test mode) + license verification
 docs/                  the GitHub Pages site (landing, sandbox, extension zip)
 cloud-browser/         hosted-browser alternative you drive from a phone
 ```
@@ -140,9 +141,19 @@ GET  http://127.0.0.1:17777/status
   counts as active work, so the SW stays alive while a poll is in flight.
 - Commands without an active tab error out fast — you'll see "no active tab".
 
+## Extension subscription (v0.2.0)
+
+The Chrome Web Store listing for Nexus AI 0.1.1 is still the free package currently in review. Version 0.2.0, in this branch, adds a **7-day free trial**, then **$5/month**.
+
+Payments are not processed by the Chrome Web Store. The extension starts the trial on first install (no card required). After that, **Subscribe — $5/month** in the popup opens [Stripe Checkout](https://docs.stripe.com/payments/checkout.md) through the small license server in `license_server/`. If some of the local trial remains, Checkout starts a Stripe subscription trial of that remaining length and collects a payment method; the first $5 charge is when that trial ends. If the local trial is already over, Checkout charges immediately.
+
+The license server is **test mode only** in this pull request: it refuses live Stripe keys, and it is **not deployed**. See [`license_server/README.md`](license_server/README.md) for local setup and for what is needed before a real launch.
+
+The optional LemonSqueezy / daily free-tier limiter in `license.py` (used by `bridge.py`) is unchanged and is a separate system.
+
 ## Plans
 
-This project is free, and its license stays as is. Support it through [GitHub Sponsors](https://github.com/sponsors/fitzyracing1):
+The source in this repository stays available under the same terms as before. GitHub Sponsors is separate from the Chrome extension’s $5/month subscription:
 
 - **Free**: use the code, community support.
 - **Pro ($49/month)**: priority issues and support.
