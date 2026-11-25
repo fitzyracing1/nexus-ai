@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Privacy Policy — Nexus AI</title>
+  <style>
+    :root { color-scheme: dark; }
+    body { margin: 0; background: #09090b; color: #e4e4e7; font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+    main { max-width: 720px; margin: 0 auto; padding: 48px 24px 80px; }
+    h1 { font-size: 2rem; letter-spacing: -0.04em; margin: 0 0 8px; }
+    h2 { font-size: 1.15rem; margin: 32px 0 8px; }
+    h3 { font-size: 1rem; margin: 20px 0 6px; }
+    p, li { color: #d4d4d8; }
+    .meta { color: #a1a1aa; margin: 0 0 32px; }
+    a { color: #34d399; }
+    hr { border: 0; border-top: 1px solid #27272a; margin: 32px 0; }
+    code { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 0.9em; background: #18181b; border: 1px solid #27272a; padding: 0 5px; border-radius: 4px; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Privacy Policy for Nexus AI</h1>
+  <p class="meta">
+    <strong>Effective date:</strong> November 24, 2026<br>
+    <strong>Contact:</strong> <a href="mailto:Fitzyracing1@gmail.com">Fitzyracing1@gmail.com</a>
+  </p>
+  <p>This policy describes how the Nexus AI Chrome extension (“the extension”) handles information. Nexus AI is a Chrome extension (version 0.1.1 and later) that connects a user-run local program, <code>bridge.py</code>, to the current browser tab.</p>
+
+  <h2>1. What Nexus AI is</h2>
+  <p>Nexus AI is a local browser bridge. It does not provide a chatbot, a cloud AI, or an account. After you install it, you run <code>bridge.py</code> on the same computer. The extension polls that local program at <code>http://127.0.0.1:17777</code> and, when you have connected with a token, carries out commands such as click, type, read, screenshot, and navigation on the current tab.</p>
+  <p>If <code>bridge.py</code> is not running, or you have not pasted a token, the extension does not read page content.</p>
+
+  <h2>2. Who is responsible</h2>
+  <p>The extension is published by Joshua Almeida. For privacy questions, email <a href="mailto:Fitzyracing1@gmail.com">Fitzyracing1@gmail.com</a>.</p>
+  <p>The developer does not operate a backend that receives your browsing data. The only program the extension talks to is the <code>bridge.py</code> process you run yourself.</p>
+
+  <h2>3. Information the extension handles</h2>
+  <h3>3.1 Information you provide</h3>
+  <p><strong>Bridge auth token.</strong> You paste this into the extension popup. It is stored in Chrome’s local extension storage (<code>chrome.storage.local</code>) on your computer so the extension can authenticate to <code>bridge.py</code>. It is not synced and is not sent anywhere except to <code>http://127.0.0.1:17777</code>.</p>
+  <h3>3.2 Information read from the browser when you use the bridge</h3>
+  <p>Only after you connect, and only when <code>bridge.py</code> issues a command, the extension may collect and return to <code>bridge.py</code>:</p>
+  <ul>
+    <li>The current tab’s URL and title, and, if requested, a list of open tabs (id, title, URL, active state, window id)</li>
+    <li>Visible text, HTML, or descriptions of elements on the current page</li>
+    <li>A screenshot of the visible area of the current tab</li>
+    <li>Results of click, type, fill, scroll, key-press, and wait actions (for example, which element was used)</li>
+  </ul>
+  <p>This may include whatever happens to be on the page, such as form fields. The extension does not try to extract passwords, payment details, or personal data as a separate feature, but if those appear in the page (or in a screenshot) and a command reads that page, they would be included in what is sent to your local <code>bridge.py</code>.</p>
+  <h3>3.3 Status and logs kept on your device</h3>
+  <p>The extension stores connection status and a short recent-command log (about the last 50 entries) in <code>chrome.storage.local</code> so the popup can show them. These stay on your computer.</p>
+  <h3>3.4 What the extension does not collect</h3>
+  <p>The extension does not create an account, does not use cookies for analytics or advertising, and does not send telemetry to the developer. It does not contact any internet host other than your local bridge at <code>127.0.0.1:17777</code>.</p>
+
+  <h2>4. How the information is used</h2>
+  <p>Information is used only to carry out the extension’s single purpose: letting your local <code>bridge.py</code> process drive or read the current tab at your request.</p>
+  <p>The extension does not use this information for advertising, retargeting, credit, lending, or any purpose unrelated to that bridge.</p>
+
+  <h2>5. How the information is shared</h2>
+  <ul>
+    <li><strong>Your local <code>bridge.py</code> process.</strong> Command results are posted to <code>http://127.0.0.1:17777/result</code>. That program runs on your computer and is bound to localhost. What you (or a local AI you run) do with those results is under your control.</li>
+    <li><strong>The developer.</strong> Page content, tokens, screenshots, tab lists, and logs are not sent to Joshua Almeida, to Nexus AI servers, or to any other third-party server by the extension.</li>
+    <li><strong>Legal requests.</strong> Because the developer does not receive this data, there is nothing of this kind for the developer to disclose in response to a legal request. Chrome itself may handle data under Google’s policies when you use the Chrome Web Store or the browser.</li>
+    <li><strong>Sale of data.</strong> User data is not sold.</li>
+  </ul>
+  <p>Anyone who can use your computer, or who can reach <code>127.0.0.1:17777</code> and knows your token, could drive the current tab or read command results. Keep the token private, and disconnect or stop <code>bridge.py</code> when you are not using it.</p>
+
+  <h2>6. Remote code and network access</h2>
+  <p>All extension scripts are included in the Chrome Web Store package. The extension does not load or run remote code. Network access is used only to exchange JSON with <code>http://127.0.0.1:17777</code>.</p>
+
+  <h2>7. Storage, retention, and deletion</h2>
+  <ul>
+    <li>The token, connection status, and local log are stored by Chrome on your device until you clear the extension’s data, click to replace the token, or uninstall the extension.</li>
+    <li>Uninstalling the extension removes its <code>chrome.storage.local</code> data.</li>
+    <li>The extension does not keep a copy of page content after it has returned a command result to <code>bridge.py</code>, other than brief descriptions that may appear in the on-device log.</li>
+  </ul>
+
+  <h2>8. Children’s privacy</h2>
+  <p>The extension is not directed at children under 13, and the developer does not knowingly collect personal information from children.</p>
+
+  <h2>9. International processing</h2>
+  <p>Because command data stays on your computer, it is not transferred by the extension to servers in other countries. If you later send that data somewhere else with your own tools, that is outside this policy.</p>
+
+  <h2>10. Changes to this policy</h2>
+  <p>If this policy changes, the updated text will be posted at the same URL, with a new effective date. Material changes will also be noted in the extension’s Chrome Web Store listing when a new version is submitted.</p>
+
+  <h2>11. Contact</h2>
+  <p>
+    Questions about this policy or the extension’s data practices:<br>
+    <strong>Email:</strong> <a href="mailto:Fitzyracing1@gmail.com">Fitzyracing1@gmail.com</a><br>
+    <strong>Project:</strong> <a href="https://github.com/fitzyracing1/nexus-ai">https://github.com/fitzyracing1/nexus-ai</a><br>
+    <strong>Demo / site:</strong> <a href="https://fitzyracing1.github.io/nexus-ai/">https://fitzyracing1.github.io/nexus-ai/</a>
+  </p>
+  <hr>
+  <p class="meta">This page is the HTML form of the Nexus AI Chrome Web Store privacy policy.</p>
+</main>
+</body>
+</html>
